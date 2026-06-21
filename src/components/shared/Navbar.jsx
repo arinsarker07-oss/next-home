@@ -2,23 +2,25 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { HiOfficeBuilding } from "react-icons/hi";
 import { LuLayoutDashboard, LuLogOut, LuMenu, LuX } from "react-icons/lu";
-// Framer Motion ইমপোর্ট করা হলো
-import { motion } from "framer-motion"; 
+import { motion } from "framer-motion";
+import { authClient } from "@/lib/auth-client";
 
 export default function NavbarComponent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
-  // Mock authentication session state
-  const [user, setUser] = useState({ isLoggedIn: true, role: "Tenant" });
+  // Fetches real-time authentic session state directly from Better-Auth client library wrapper
+  const { data: session, isPending } = authClient.useSession();
+  const isLoggedIn = !!session;
 
-  // সঠিক রুট ম্যাচিং করার ফাংশন
+  // Utility function confirming exact route matches
   const isActive = (path) => pathname === path;
 
-  // Navigation configuration list
+  // Core navigation items configuration array
   const menuItems = [
     { name: "Home", path: "/" },
     { name: "All Properties", path: "/properties" },
@@ -26,15 +28,26 @@ export default function NavbarComponent() {
     { name: "Blog", path: "/blog" },
   ];
 
+  // Triggers secure sign-out chain and gracefully pushes the user to the landing interface
+  const handlesignout = async () => {
+    try {
+      await authClient.signOut();
+      setIsMenuOpen(false);
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      console.error("Sign-out stream failure occurred:", error);
+    }
+  };
+
   return (
-    <nav className="bg-gray-400 sticky top-0 z-50 border-b border-slate-200 w-full shadow-sm transition-all duration-300">
+    <nav className="bg-white sticky top-0 z-50 border-b border-slate-200 w-full shadow-sm transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
 
-          {/* Left Side: Logo */}
+          {/* Left Block: Corporate Branding Identity */}
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2 group">
-              {/* টেস্ট করার জন্য এখানে bg-blue-600 দেওয়া হয়েছে */}
               <div className="p-2 bg-blue-600 rounded-lg text-white group-hover:scale-105 transition-transform duration-200">
                 <HiOfficeBuilding className="text-xl" />
               </div>
@@ -44,7 +57,7 @@ export default function NavbarComponent() {
             </Link>
           </div>
 
-          {/* Middle Links with Working Framer Motion Slider */}
+          {/* Center Block: Desktop Layout Navigation Links */}
           <div className="hidden sm:flex items-center gap-6 h-full">
             {menuItems.map((item) => {
               const active = isActive(item.path);
@@ -53,14 +66,10 @@ export default function NavbarComponent() {
                   key={item.path}
                   href={item.path}
                   className={`text-sm font-medium transition-colors duration-200 relative py-2 flex items-center px-1 ${
-                    active
-                      ? "text-white/80 font-bold"
-                      : "text-slate-600 hover:text-white"
+                    active ? "text-blue-600 font-bold" : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   <span className="relative z-10">{item.name}</span>
-                  
-                  {/* ১০০% কাজ করবে এমন স্লাইডার এলিমেন্ট */}
                   {active && (
                     <motion.div
                       layoutId="nav-underline"
@@ -73,10 +82,13 @@ export default function NavbarComponent() {
             })}
           </div>
 
-          {/* Right Side: Authentication Control */}
-          <div className="hidden sm:flex items-center gap-4">
-            {user.isLoggedIn ? (
-              <>
+          {/* Right Block: User Authentication Middleware Control Panel */}
+          <div className="hidden sm:flex items-center gap-4 h-full">
+            {isPending ? (
+              // Loading fallback structural skeleton blocking UI flashing errors during validation
+              <div className="h-9 w-24 bg-slate-100 animate-pulse rounded-lg" />
+            ) : isLoggedIn ? (
+              <div className="flex items-center gap-4">
                 <Link
                   href="/dashboard"
                   className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-50 text-blue-600 font-semibold text-sm hover:bg-blue-100 transition-all duration-200"
@@ -85,32 +97,53 @@ export default function NavbarComponent() {
                   Dashboard
                 </Link>
                 <button
-                  onClick={() => setUser({ isLoggedIn: false, role: "" })}
+                  onClick={handlesignout}
                   className="flex items-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:text-rose-600 hover:bg-rose-50 text-sm font-medium transition-all duration-200"
                 >
                   <LuLogOut className="text-lg" />
                   Logout
                 </button>
-              </>
+              </div>
             ) : (
-              <>
+              <div className="flex items-center gap-3 h-full relative">
+                {/* Desktop Login Gateway Route Anchor */}
                 <Link
                   href="/login"
-                  className="bg-blue-700 hover:bg-blue-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-md transition-all transform active:scale-95"
+                  className={`text-sm  hover:bg-blue-600 hover:text-white  font-semibold px-4 py-2 rounded-xl transition-all relative duration-200 ${
+                    isActive("/login") ? "text-white" : "text-slate-600 hover:text-slate-900"
+                  }`}
                 >
-                  Login
+                  <span className="relative z-10">Login</span>
+                  {isActive("/login") && (
+                    <motion.div
+                      layoutId="auth-active-bg"
+                      className="absolute inset-0 bg-blue-600 rounded-lg -z-0"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
                 </Link>
+
+                {/* Desktop Registration Gateway Route Anchor */}
                 <Link
                   href="/register"
-                  className=" hover:bg-blue-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-md transition-all transform active:scale-95"
+                  className={`text-sm hover:text-white hover:bg-blue-600 font-semibold px-4 py-2 rounded-xl transition-all relative duration-200 ${
+                    isActive("/register") ? "text-white" : "text-slate-600 hover:text-slate-900"
+                  }`}
                 >
-                  Register
+                  <span className="relative z-10">Register</span>
+                  {isActive("/register") && (
+                    <motion.div
+                      layoutId="auth-active-bg"
+                      className="absolute inset-0 bg-blue-600 rounded-lg -z-0"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
                 </Link>
-              </>
+              </div>
             )}
           </div>
 
-          {/* Mobile Layout Controller */}
+          {/* Extreme Right Block: Mobile Navigation Open/Close Interface Buttons */}
           <div className="flex sm:hidden items-center">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -124,7 +157,7 @@ export default function NavbarComponent() {
         </div>
       </div>
 
-      {/* Mobile Menu Panel */}
+      {/* Mobile Layout Dropdown Sheet Overlay */}
       {isMenuOpen && (
         <div className="sm:hidden bg-white border-b border-slate-200 absolute top-16 left-0 w-full px-4 pt-2 pb-6 flex flex-col gap-3 shadow-lg transition-all duration-200">
           {menuItems.map((item) => (
@@ -142,7 +175,10 @@ export default function NavbarComponent() {
             </Link>
           ))}
           <div className="h-[1px] bg-slate-100 my-1" />
-          {user.isLoggedIn ? (
+          
+          {isPending ? (
+            <div className="h-9 w-full bg-slate-100 animate-pulse rounded-lg" />
+          ) : isLoggedIn ? (
             <>
               <Link
                 href="/dashboard"
@@ -152,10 +188,7 @@ export default function NavbarComponent() {
                 <LuLayoutDashboard /> Dashboard
               </Link>
               <button
-                onClick={() => {
-                  setUser({ isLoggedIn: false, role: "" });
-                  setIsMenuOpen(false);
-                }}
+                onClick={handlesignout}
                 className="flex items-center gap-2 text-base text-left font-medium py-2 px-3 rounded-lg text-rose-600 hover:bg-rose-50 transition-all"
               >
                 <LuLogOut /> Logout
@@ -166,14 +199,18 @@ export default function NavbarComponent() {
               <Link
                 href="/login"
                 onClick={() => setIsMenuOpen(false)}
-                className="text-center font-medium text-slate-700 hover:bg-slate-50 py-2 rounded-lg transition-all"
+                className={`text-center font-medium py-2 rounded-lg transition-all ${
+                  isActive("/login") ? "bg-blue-600 text-white font-bold" : "text-slate-700 hover:bg-slate-50"
+                }`}
               >
                 Login
               </Link>
               <Link
                 href="/register"
                 onClick={() => setIsMenuOpen(false)}
-                className="text-center font-medium bg-blue-600 text-white py-2 rounded-lg shadow-md transition-all"
+                className={`text-center font-medium py-2 rounded-lg transition-all ${
+                  isActive("/register") ? "bg-blue-600 text-white font-bold" : "text-slate-700 hover:bg-slate-50"
+                }`}
               >
                 Register
               </Link>

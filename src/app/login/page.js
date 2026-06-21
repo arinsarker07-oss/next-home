@@ -36,7 +36,6 @@ export default function LoginPage() {
             const { data, error } = await authClient.signIn.email({
                 email: formData.email,
                 password: formData.password,
-                // পাস করার সময় মেটাডাটা বা কুয়েরি হিসেবে রোল পাস করা যায় সেশন রিডাইরেকশনের জন্য
             });
             console.log(data);
             
@@ -49,13 +48,12 @@ export default function LoginPage() {
 
             setTimeout(() => {
                 setIsLoading(false);
-                // রিডাইরেক্টিং ড্যাশবোর্ড বেসড অন ম্যানুয়াল সিলেক্টেড রোল
                 if (selectedRole === "Owner") {
                     router.push("/dashboard/owner");
                 } else {
                     router.push("/dashboard/tenant");
                 }
-            }, 1500);
+            });
 
         } catch (error) {
             console.error("Pipeline login runtime failure:", error);
@@ -68,11 +66,11 @@ export default function LoginPage() {
         console.log("Executing social authentication framework. Constraint Enforcement: Default role mapped to 'Tenant'");
 
         
-        // // Better-Auth Social Authentication Hook:
-        // await authClient.signIn.social({
-        //     provider: "google",
-        //     callbackURL: "/dashboard/tenant" // Automatically routed to tenant control panel
-        // });
+        // Better-Auth Social Authentication Hook:
+        await authClient.signIn.social({
+            provider: "google",
+            callbackURL: "/dashboard/tenant" // Automatically routed to tenant control panel
+        });
         
     };
 

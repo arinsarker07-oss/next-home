@@ -7,6 +7,7 @@ import { Button } from "@heroui/react";
 import { HiUser, HiEnvelope, HiLockClosed, HiPhoto, HiEye, HiEyeSlash, HiBriefcase } from "react-icons/hi2";
 import { FcGoogle } from "react-icons/fc";
 import { authClient } from "@/lib/auth-client";
+import { Jolly_Lodger } from "next/font/google";
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -19,7 +20,7 @@ export default function RegisterPage() {
         email: "",
         photo: "",
         password: "",
-        role: "Tenant" 
+        role: "Tenant"
     });
 
     // Generic change handler tracking keyboard inputs dynamically
@@ -42,28 +43,41 @@ export default function RegisterPage() {
                 email: formData.email,
                 password: formData.password,
                 name: formData.name,
-                image: formData.photo, 
-                role: formData.role 
+                image: formData.photo,
+                role: formData.role
             });
 
             if (error) {
                 console.error("Better-Auth core registration failed:", error.message);
+                alert(error.message)
                 setIsLoading(false);
                 return;
             }
-          
+
             console.log("Better-Auth Response Successful:", data);
-             
+
             // Smooth user redirection block upon absolute profile completion
             setTimeout(() => {
                 setIsLoading(false);
                 router.push("/");
-            }, 1500);
+            });
 
         } catch (error) {
             console.error("Pipeline registration runtime failure:", error);
             setIsLoading(false);
         }
+    };
+    // Google Social Login - Requirement Enforcement: Implicitly Assigns 'Tenant' Role
+    const handleGoogleSocialLogin = async () => {
+        console.log("Executing social authentication framework. Constraint Enforcement: Default role mapped to 'Tenant'");
+
+
+        // Better-Auth Social Authentication Hook:
+        await authClient.signIn.social({
+            provider: "google",
+            callbackURL: "/dashboard/tenant" // Automatically routed to tenant control panel
+        });
+
     };
 
     return (
@@ -167,8 +181,8 @@ export default function RegisterPage() {
                                 // Updates state payload cleanly using inline wrapper callback
                                 onClick={() => setFormData(prev => ({ ...prev, role: "Tenant" }))}
                                 className={`h-11 rounded-xl font-bold text-sm flex items-center justify-center gap-2 border transition-all ${formData.role === "Tenant"
-                                        ? "bg-blue-50 border-blue-600 text-blue-600 shadow-sm"
-                                        : "bg-transparent border-slate-200 text-slate-600 hover:bg-slate-50"
+                                    ? "bg-blue-50 border-blue-600 text-blue-600 shadow-sm"
+                                    : "bg-transparent border-slate-200 text-slate-600 hover:bg-slate-50"
                                     }`}
                             >
                                 <HiUser className="text-lg" />
@@ -179,8 +193,8 @@ export default function RegisterPage() {
                                 // Updates state payload cleanly using inline wrapper callback
                                 onClick={() => setFormData(prev => ({ ...prev, role: "Owner" }))}
                                 className={`h-11 rounded-xl font-bold text-sm flex items-center justify-center gap-2 border transition-all ${formData.role === "Owner"
-                                        ? "bg-blue-50 border-blue-600 text-blue-600 shadow-sm"
-                                        : "bg-transparent border-slate-200 text-slate-600 hover:bg-slate-50"
+                                    ? "bg-blue-50 border-blue-600 text-blue-600 shadow-sm"
+                                    : "bg-transparent border-slate-200 text-slate-600 hover:bg-slate-50"
                                     }`}
                             >
                                 <HiBriefcase className="text-lg" />
@@ -225,6 +239,7 @@ export default function RegisterPage() {
                 <Button
                     variant="bordered"
                     className="w-full h-11 border-slate-200 text-slate-700 hover:bg-blue-700 hover:text-white font-bold text-sm tracking-wide shadow-sm rounded-xl transition-all transform active:scale-95 "
+                    onClick={handleGoogleSocialLogin}
                 >
                     <FcGoogle className="text-xl flex-shrink-0" />
                     <span>Continue with Google</span>
