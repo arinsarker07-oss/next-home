@@ -30,9 +30,26 @@ export const auth = betterAuth({
    user: {
         additionalFields: {
             role: {
-                default: "seeker"
+                default: "Tenant"
             },
         }
     },
+    // 🎯 GOOGLE FIX: Intercepts social signups right before MongoDB entry
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          // If a user registers via Google/GitHub, client-side input is skipped.
+          // This block safely injects your default 'seeker' role into MongoDB.
+          if (!user.role) {
+            user.role = "Tenant"; 
+          }
+          return {
+            data: user,
+          };
+        },
+      },
+    },
+  },
     
 });
