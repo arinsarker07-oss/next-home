@@ -1,16 +1,18 @@
+import HeroBanner from "@/components/Home/banner";
+import CustomerReviews from "@/components/Home/CustomerReviews";
+import TopLocations from "@/components/Home/TopLocations";
+import TrustedOwners from "@/components/Home/TrustedOwners";
+import WhyChooseUs from "@/components/Home/WhyChooseUs";
 import { Button } from "@heroui/react";
 
 export default function Home() {
   return (
-    <div className="max-w-3xl mx-auto px-4 py-16 text-center bg-gray-700" >
-      <h1 className="text-4xl font-bold  text-gray-800 dark:text-gray-200">
-        Welcome to Next.js 14!
-      </h1>
-      <p className="mt-4 text-gray-600 dark:text-gray-400">
-        This is a simple starter template to get you up and running with Next.js 14.
-      </p>
-      {/* check hero ui */}
-      <Button className="mt-4">like</Button>
+    <div >
+      <HeroBanner />
+      <WhyChooseUs />
+      <CustomerReviews />
+      <TopLocations />
+      <TrustedOwners />
     </div>
   );
 }
