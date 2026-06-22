@@ -16,7 +16,9 @@ export default function NavbarComponent() {
   // Fetches real-time authentic session state directly from Better-Auth client library wrapper
   const { data: session, isPending } = authClient.useSession();
   const isLoggedIn = !!session;
-
+  
+  const userRole = session?.user.role
+  
   // Utility function confirming exact route matches
   const isActive = (path) => pathname === path;
 
@@ -90,7 +92,7 @@ export default function NavbarComponent() {
             ) : isLoggedIn ? (
               <div className="flex items-center gap-4">
                 <Link
-                  href="/dashboard"
+                  href={`/dashboard/${userRole}`}
                   className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-50 text-blue-600 font-semibold text-sm hover:bg-blue-100 transition-all duration-200"
                 >
                   <LuLayoutDashboard className="text-lg" />

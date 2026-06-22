@@ -1,410 +1,309 @@
 'use client';
+import React, { useState } from "react";
+import { Card, Button } from "@heroui/react";
+import { motion } from "framer-motion";
+import {
+    AreaChart,
+    Area,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer
+} from "recharts";
+import { HiOutlineArrowLeftOnRectangle, HiOutlineBanknotes, HiOutlineCalendarDays, HiOutlineDocumentText, HiOutlineHomeModern, HiOutlineInboxArrowDown, HiOutlinePlusCircle, HiOutlineSquares2X2, HiOutlineUserCircle } from "react-icons/hi2";
+import { HiOutlineTrendingUp } from "react-icons/hi";
+import Link from "next/link";
+import AddPropertyPage from "./add-property/page";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@heroui/react";
-import { authClient } from "@/lib/auth-client"; // আপনার Better-Auth ক্লায়েন্ট পাথ
-import { 
-  HiHome, HiDocumentText, HiMapPin, HiCurrencyDollar, 
-  HiClock, HiSquare3Stack3D, HiPhoto
-} from "react-icons/hi2";
-import { FaBed, FaBath } from "react-icons/fa";
-import { AddProperty } from "@/lib/action/allProperty";
+export default function OwnerDashboardMain() {
+    // Navigation active tab controller logic for future router bindings
+    const [activeTab, setActiveTab] = useState("overview");
 
-export default function AddPropertyPage() {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [isImageUploading, setIsImageUploading] = useState(false);
-  
-  // 👉 Better-Auth সেশন হুক থেকে কারেন্ট ওনারের ডেটা নেওয়া হচ্ছে
-  const { data: session } = authClient.useSession();
+    // Summary Metrics data mimicking successful transactional entries
+    const summaryCards = [
+        {
+            id: 1,
+            title: "Total Earnings",
+            value: "৳125,000",
+            icon: <HiOutlineBanknotes className="w-6 h-6 text-emerald-600" />,
+            bg: "bg-emerald-50/40 border-emerald-100",
+            description: "Sum of all successful payments"
+        },
+        {
+            id: 2,
+            title: "Total Properties",
+            value: "12",
+            icon: <HiOutlineHomeModern className="w-6 h-6 text-blue-600" />,
+            bg: "bg-blue-50/40 border-blue-100",
+            description: "Properties created by you"
+        },
+        {
+            id: 3,
+            title: "Total Bookings",
+            value: "58",
+            icon: <HiOutlineCalendarDays className="w-6 h-6 text-purple-600" />,
+            bg: "bg-purple-50/40 border-purple-100",
+            description: "Confirmed rental slots"
+        }
+    ];
 
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    location: "",
-    propertyType: "Apartment",
-    price: "",
-    rentType: "Monthly",
-    bedrooms: "",
-    bathrooms: "",
-    size: "",
-    amenities: "",
-    images: "", // ImgBB থেকে জেনারেট হওয়া ফাইনাল URL লিংকটি এখানে জমা হবে
-    extraFeatures: "",
-    status: "Pending",
-    ownerName: "",
-    ownerEmail: "",
-    ownerPhone: ""
-  });
+    // Recharts 12 Months aggregated statistical simulation matrix
+    const monthlyEarningsData = [
+        { month: "Jan", earnings: 15000 },
+        { month: "Feb", earnings: 18000 },
+        { month: "Mar", earnings: 22000 },
+        { month: "Apr", earnings: 25000 },
+        { month: "May", earnings: 21000 },
+        { month: "Jun", earnings: 30000 },
+        { month: "Jul", earnings: 34000 },
+        { month: "Aug", earnings: 28000 },
+        { month: "Sep", earnings: 40000 },
+        { month: "Oct", earnings: 37000 },
+        { month: "Nov", earnings: 45000 },
+        { month: "Dec", earnings: 125000 }
+    ];
 
-  // সেশন লোড হওয়ার সাথে সাথে ওনারের নাম ও ইমেইল স্টেট-এ সেট করে দেওয়া
-  useEffect(() => {
-    if (session?.user) {
-      setFormData((prev) => ({
-        ...prev,
-        ownerName: session.user.name || "",
-        ownerEmail: session.user.email || ""
-      }));
-    }
-  }, [session]);
+    return (
+        // Outer Shell Layout: Flex matrix grouping Aside Navigation and Content Wrapper
+        <div className="w-full min-h-screen bg-[#f8fafc] text-slate-800 flex overflow-x-hidden">
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+            {/* 🧭 Left-Side Navigation Guard Module (<aside> implementation matching image_74a79e.png) */}
+            <aside className="w-64 min-h-screen bg-slate-950 text-white flex flex-col justify-between p-4 flex-shrink-0 border-r border-slate-900 hidden md:flex">
+                <div className="space-y-8">
+                    {/* Top Brand Block */}
+                    <div className="flex items-center gap-3 px-3 py-2 border-b border-slate-900">
+                        <div className="p-2 bg-blue-600 rounded-lg text-white">
+                            <HiOutlineHomeModern className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h2 className="text-sm font-black tracking-tight text-white leading-none">NextHome</h2>
+                            <span className="text-[10px] text-slate-500 font-bold tracking-wider uppercase">Portal v3.1</span>
+                        </div>
+                    </div>
 
+                    {/* Navigation Action Links Routing Matrix */}
+                    <nav className="space-y-1">
+                        <span className="text-[10px] font-bold tracking-widest text-slate-500 uppercase px-3 block mb-2">Main Menu</span>
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+                        <button
+                            onClick={() => setActiveTab("overview")}
+                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "overview"
+                                ? "bg-blue-600 text-white shadow-md shadow-blue-600/10"
+                                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                                }`}
+                        >
+                            <HiOutlineSquares2X2 className="w-4 h-4" />
+                            <span>Dashboard Home</span>
+                        </button>
 
-    setIsImageUploading(true);
-    
-    // ImgBB API এর জন্য FormData তৈরি করা
-    const imgData = new FormData();
-    imgData.append("image", file);
+                        <button
+                            onClick={() => setActiveTab("add")}
+                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "add"
+                                ? "bg-blue-600 text-white shadow-md shadow-blue-600/10"
+                                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                                }`}
+                        >
+                            <HiOutlinePlusCircle className="w-4 h-4" />
+                            <span>Add Property</span>
+                        </button>
 
-    try {
-      // ⚠️ আপনার ImgBB API Key এখানে বসিয়ে দিন (ফ্রি অ্যাকাউন্ট খুলে ১ সেকেন্ডে কী পাওয়া যায়)
-      const IMGBB_API_KEY = "38fb8a923c25fe824ec98aca7500824d"; 
-      
-      const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-        method: "POST",
-        body: imgData,
-      });
+                            <button
+                                onClick={() => setActiveTab("properties")}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "properties"
+                                    ? "bg-blue-600 text-white shadow-md shadow-blue-600/10"
+                                    : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                                    }`}
+                            >
+                                <HiOutlineDocumentText className="w-4 h-4" />
+                                <span>My Properties</span>
+                            </button>
+                        <button
+                            onClick={() => setActiveTab("requests")}
+                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "requests"
+                                ? "bg-blue-600 text-white shadow-md shadow-blue-600/10"
+                                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                                }`}
+                        >
+                            <HiOutlineInboxArrowDown className="w-4 h-4" />
+                            <span>Booking Requests</span>
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("profile")}
+                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "profile"
+                                ? "bg-blue-600 text-white shadow-md shadow-blue-600/10"
+                                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                                }`}
+                        >
+                            <HiOutlineUserCircle className="w-4 h-4" />
+                            <span>Profile Context</span>
+                        </button>
+                    </nav>
+                </div>
 
-      const result = await response.json();
-      
-      if (result.success) {
-        const uploadedUrl = result.data.url;
-        console.log("ImgBB Upload Success! URL:", uploadedUrl);
-        
-        // ইমেজ ইউআরএল-টি স্টেট-এ সেভ করা
-        setFormData((prev) => ({ ...prev, images: uploadedUrl }));
-      } else {
-        alert("Image upload failed to ImgBB framework.");
-      }
-    } catch (error) {
-      console.error("ImgBB Connection Error:", error);
-      alert("Error uploading image. Check console.");
-    } finally {
-      setIsImageUploading(false);
-    }
-  };
+                {/* Aside Sticky Footer Utilities */}
+                <div className="space-y-1.5 border-t border-slate-900 pt-4">
+                    <Link href={"/"}>
+                        <button className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-950/30 transition-all">
+                            <HiOutlineArrowLeftOnRectangle className="w-4 h-4" />
+                            <span >Exit Dashboard</span>
+                        </button>
+                    </Link>
+                </div>
+            </aside>
 
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.images) {
-      alert("Please wait until the property image is fully hosted on ImgBB.");
-      return;
-    }
-    
-    setIsLoading(true);
-    
-    try {
-      console.log("Ready to push payload to backend DB:", formData);
-      
-      const payload = await AddProperty(formData)
+            {/* 🚀 Dynamic Right Content Viewport Panel */}
+            {activeTab === "overview" && (
+                <main className="flex-grow p-4 md:p-8 space-y-8 overflow-y-auto max-h-screen">
 
-      setTimeout(() => {
-        setIsLoading(false);
-        // router.push("/dashboard");
-      }, 1000);
-    } catch (error) {
-      console.error(error);
-      setIsLoading(false);
-    }
-  };
+                    {/* Header Dynamic Summary Block */}
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-200/60">
+                        <div className="space-y-1">
+                            <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+                                Owner Dashboard
+                            </h1>
+                            <p className="text-xs md:text-sm text-slate-500 font-medium">
+                                Overview of your current real estate portfolio performance.
+                            </p>
+                        </div>
 
-  return (
-    <div className="min-h-screen bg-slate-50 py-6 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-      <div className="w-full max-w-3xl bg-white shadow-lg rounded-xl border border-slate-100 overflow-hidden">
-        
-        {/* Compact Header Banner */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 text-white flex justify-between items-center">
-          <div>
-            <h2 className="text-xl font-bold tracking-tight">Add New Property</h2>
-            <p className="text-xs text-blue-100">Fill in the fields to list your property asset.</p>
-          </div>
-          <span className="px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full uppercase tracking-wide">
-            Status: {formData.status}
-          </span>
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-xl shadow-sm text-xs font-bold text-slate-700">
+                            <HiOutlineTrendingUp className="text-emerald-500 w-4 h-4 animate-pulse" />
+                            <span>Live Aggregates Active</span>
+                        </div>
+                    </div>
+
+                    {/* Summary Metric Component Matrix Grid */}
+                    <motion.div
+                        initial="hidden"
+                        animate="show"
+                        variants={{
+                            hidden: { opacity: 0 },
+                            show: { opacity: 1, transition: { staggerChildren: 0.08 } }
+                        }}
+                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                    >
+                        {summaryCards.map((card) => (
+                            <motion.div
+                                key={card.id}
+                                variants={{
+                                    hidden: { opacity: 0, y: 15 },
+                                    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
+                                }}
+                            >
+                                <Card className={`border shadow-sm rounded-2xl bg-white ${card.bg} transition-all duration-300 hover:shadow-md`}>
+                                    <section className="p-6 flex flex-row items-center justify-between gap-4">
+                                        <div className="space-y-1.5">
+                                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+                                                {card.title}
+                                            </span>
+                                            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+                                                {card.value}
+                                            </h2>
+                                            <p className="text-[11px] text-slate-400 font-medium leading-none">
+                                                {card.description}
+                                            </p>
+                                        </div>
+                                        <div className="p-3.5 bg-white border border-slate-100 rounded-xl shadow-sm flex-shrink-0">
+                                            {card.icon}
+                                        </div>
+                                    </section>
+                                </Card>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+
+                    {/* Recharts Analytics Visualization Component Frame */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 25 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                        className="w-full"
+                    >
+                        <Card className="border border-slate-200/60 shadow-sm rounded-2xl bg-white p-6">
+                            <section className="p-0 space-y-6">
+                                <div className="space-y-1">
+                                    <h3 className="text-lg font-bold text-slate-800 tracking-tight">
+                                        Monthly Earnings
+                                    </h3>
+                                    <p className="text-xs text-slate-400 font-medium">
+                                        Detailed timeline mapping out historical metrics of confirmed property returns.
+                                    </p>
+                                </div>
+
+                                {/* Graphical Canvas Render Wrapper */}
+                                <div className="w-full h-80 pt-2 text-xs">
+                                    <ResponsiveContainer width="100%" h="100%">
+                                        <AreaChart
+                                            data={monthlyEarningsData}
+                                            margin={{ top: 10, right: 5, left: -20, bottom: 0 }}
+                                        >
+                                            <defs>
+                                                <linearGradient id="ownerDashboardColor" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.15} />
+                                                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
+                                                </linearGradient>
+                                            </defs>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                            <XAxis
+                                                dataKey="month"
+                                                axisLine={false}
+                                                tickLine={false}
+                                                stroke="#94a3b8"
+                                                fontWeight={600}
+                                            />
+                                            <YAxis
+                                                axisLine={false}
+                                                tickLine={false}
+                                                stroke="#94a3b8"
+                                                fontWeight={600}
+                                                tickFormatter={(val) => `৳${val}`}
+                                            />
+                                            <Tooltip
+                                                contentStyle={{
+                                                    backgroundColor: '#fff',
+                                                    borderRadius: '12px',
+                                                    borderColor: '#e2e8f0',
+                                                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)'
+                                                }}
+                                                formatter={(val) => [`৳${val.toLocaleString()}`, 'Earnings']}
+                                            />
+                                            <Area
+                                                type="monotone"
+                                                dataKey="earnings"
+                                                stroke="#2563eb"
+                                                strokeWidth={2.5}
+                                                fillOpacity={1}
+                                                fill="url(#ownerDashboardColor)"
+                                            />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </section>
+                        </Card>
+                    </motion.div>
+
+                </main>
+            )}
+            {activeTab === "add" && (
+                <AddPropertyPage></AddPropertyPage>
+            )}
+            {activeTab === "properties" && (
+               <div> gg</div>
+            )}
+            {activeTab === "requests" && (
+                <div>
+                    <h2>Welcome to Dashboard Overview</h2>
+                    {/* এখানে ড্যাশবোর্ডের মেইন গ্রাফ বা ডেটা থাকবে */}
+                </div>
+            )}
+            {activeTab === "profile" && (
+                <div>
+                    <h2>Welcome to Dashboard Overview</h2>
+                    {/* এখানে ড্যাশবোর্ডের মেইন গ্রাফ বা ডেটা থাকবে */}
+                </div>
+            )}
+
         </div>
-
-        {/* Optimized Form Grid */}
-        <form onSubmit={handleFormSubmit} className="p-6 space-y-5">
-          
-          {/* Row 1: Title & Location */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1 text-left">
-              <label className="text-xs font-bold text-slate-500 uppercase">Property Title</label>
-              <div className="relative flex items-center">
-                <HiHome className="absolute left-3 text-slate-400 text-base" />
-                <input
-                  type="text"
-                  name="title"
-                  required
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  placeholder="Luxury Apartment"
-                  className="w-full h-10 pl-9 pr-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1 text-left">
-              <label className="text-xs font-bold text-slate-500 uppercase">Location Address</label>
-              <div className="relative flex items-center">
-                <HiMapPin className="absolute left-3 text-slate-400 text-base" />
-                <input
-                  type="text"
-                  name="location"
-                  required
-                  value={formData.location}
-                  onChange={handleInputChange}
-                  placeholder="Street, City, ZIP"
-                  className="w-full h-10 pl-9 pr-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Row 2: Property Type, Rent Price & Cycle */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="space-y-1 text-left">
-              <label className="text-xs font-bold text-slate-500 uppercase">Property Type</label>
-              <select
-                name="propertyType"
-                value={formData.propertyType}
-                onChange={handleInputChange}
-                className="w-full h-10 px-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors cursor-pointer"
-              >
-                <option value="Apartment">Apartment</option>
-                <option value="House">House</option>
-                <option value="Studio">Studio</option>
-                <option value="Villa">Villa</option>
-              </select>
-            </div>
-
-            <div className="space-y-1 text-left">
-              <label className="text-xs font-bold text-slate-500 uppercase">Rent Price (USD)</label>
-              <div className="relative flex items-center">
-                <HiCurrencyDollar className="absolute left-3 text-slate-400 text-base" />
-                <input
-                  type="number"
-                  name="price"
-                  required
-                  value={formData.price}
-                  onChange={handleInputChange}
-                  placeholder="0.00"
-                  className="w-full h-10 pl-9 pr-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1 text-left">
-              <label className="text-xs font-bold text-slate-500 uppercase">Rent Cycle</label>
-              <div className="relative flex items-center">
-                <HiClock className="absolute left-3 text-slate-400 text-base pointer-events-none" />
-                <select
-                  name="rentType"
-                  value={formData.rentType}
-                  onChange={handleInputChange}
-                  className="w-full h-10 pl-9 pr-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors cursor-pointer"
-                >
-                  <option value="Monthly">Monthly</option>
-                  <option value="Weekly">Weekly</option>
-                  <option value="Daily">Daily</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Row 3: Specs - Beds, Baths & Size */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="space-y-1 text-left">
-              <label className="text-xs font-bold text-slate-500 uppercase">Bedrooms</label>
-              <div className="relative flex items-center">
-                <FaBed className="absolute left-3 text-slate-400 text-base" />
-                <input
-                  type="number"
-                  name="bedrooms"
-                  required
-                  value={formData.bedrooms}
-                  onChange={handleInputChange}
-                  placeholder="Beds Count"
-                  className="w-full h-10 pl-9 pr-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1 text-left">
-              <label className="text-xs font-bold text-slate-500 uppercase">Bathrooms</label>
-              <div className="relative flex items-center">
-                <FaBath className="absolute left-3 text-slate-400 text-sm" />
-                <input
-                  type="number"
-                  name="bathrooms"
-                  required
-                  value={formData.bathrooms}
-                  onChange={handleInputChange}
-                  placeholder="Baths Count"
-                  className="w-full h-10 pl-9 pr-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1 text-left">
-              <label className="text-xs font-bold text-slate-500 uppercase">Size (Sq. Ft.)</label>
-              <div className="relative flex items-center">
-                <HiSquare3Stack3D className="absolute left-3 text-slate-400 text-base" />
-                <input
-                  type="number"
-                  name="size"
-                  required
-                  value={formData.size}
-                  onChange={handleInputChange}
-                  placeholder="Area Size"
-                  className="w-full h-10 pl-9 pr-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Row 4: Amenities & Extra Features */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1 text-left">
-              <label className="text-xs font-bold text-slate-500 uppercase">Amenities</label>
-              <input
-                type="text"
-                name="amenities"
-                required
-                value={formData.amenities}
-                onChange={handleInputChange}
-                placeholder="WiFi, Gym, Pool (Comma separated)"
-                className="w-full h-10 px-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors"
-              />
-            </div>
-
-            <div className="space-y-1 text-left">
-              <label className="text-xs font-bold text-slate-500 uppercase">Extra Features</label>
-              <input
-                type="text"
-                name="extraFeatures"
-                value={formData.extraFeatures}
-                onChange={handleInputChange}
-                placeholder="24/7 Security, Parking"
-                className="w-full h-10 px-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors"
-              />
-            </div>
-          </div>
-
-          {/* 👉 [Updated Row 5]: REAL FILE UPLOAD FOR IMGBB CONVERSION */}
-          <div className="space-y-1 text-left">
-            <label className="text-xs font-bold text-slate-500 uppercase">Property Image Upload</label>
-            <div className="flex items-center gap-4 border border-dashed border-slate-200 rounded-lg p-3 bg-slate-50/50">
-              <div className="relative flex items-center bg-white border border-slate-200 rounded-md px-3 py-1.5 cursor-pointer shadow-sm hover:bg-slate-50 transition-colors">
-                <HiPhoto className="text-slate-500 mr-2 text-base" />
-                <span className="text-xs font-bold text-slate-600">Choose Image File</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  required={!formData.images}
-                  onChange={handleImageUpload}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
-              </div>
-              
-
-              <div className="flex-1 text-right">
-                {isImageUploading && (
-                  <span className="text-xs font-semibold text-blue-600 animate-pulse">Uploading to ImgBB framework...</span>
-                )}
-                {!isImageUploading && formData.images && (
-                  <div className="flex items-center justify-end gap-2">
-                    <span className="text-xs text-emerald-600 font-bold">✓ Ready</span>
-                    <img src={formData.images} alt="Preview" className="w-8 h-8 rounded object-cover border border-slate-200" />
-                  </div>
-                )}
-                {!isImageUploading && !formData.images && (
-                  <span className="text-xs text-slate-400">No file uploaded yet</span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Row 6: Description */}
-          <div className="space-y-1 text-left">
-            <label className="text-xs font-bold text-slate-500 uppercase">Description</label>
-            <div className="relative flex items-start">
-              <HiDocumentText className="absolute left-3 top-2.5 text-slate-400 text-base" />
-              <textarea
-                name="description"
-                required
-                rows={2}
-                value={formData.description}
-                onChange={handleInputChange}
-                placeholder="Describe details regarding nearby infrastructure, facilities..."
-                className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors resize-none"
-              />
-            </div>
-          </div>
-
-          {/* 👉 [Updated Row 7]: Session Protected Owner Contact Matrix */}
-          <div className="bg-slate-50/50 p-4 border border-slate-100 rounded-lg space-y-3">
-            <span className="block text-xs font-bold text-slate-700 uppercase text-left tracking-wider">Owner Credentials (Auto-Populated)</span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <input
-                type="text"
-                name="ownerName"
-                readOnly 
-                value={formData.ownerName}
-                placeholder="Loading Name..."
-                className="h-9 px-3 bg-slate-100 border border-slate-200 rounded-md text-xs font-medium text-slate-500 outline-none cursor-not-allowed"
-              />
-              <input
-                type="email"
-                name="ownerEmail"
-                readOnly 
-                value={formData.ownerEmail}
-                placeholder="Loading Email..."
-                className="h-9 px-3 bg-slate-100 border border-slate-200 rounded-md text-xs font-medium text-slate-500 outline-none cursor-not-allowed"
-              />
-              <input
-                type="tel"
-                name="ownerPhone"
-                required
-                value={formData.ownerPhone}
-                onChange={handleInputChange}
-                placeholder="Contact Phone Number"
-                className="h-9 px-3 bg-white border border-slate-200 rounded-md text-xs font-medium outline-none focus:border-blue-600 transition-colors"
-              />
-            </div>
-          </div>
-
-          {/* Footer Control Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="px-4 h-9 border border-slate-200 text-slate-600 font-bold text-xs rounded-lg hover:bg-slate-50 transition-all transform active:scale-95"
-            >
-              Cancel
-            </button>
-            <Button
-              type="submit"
-              color="primary"
-              className="px-6 h-9 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs tracking-wide shadow-md rounded-lg transition-all transform active:scale-95"
-              isLoading={isLoading || isImageUploading} 
-              disabled={isImageUploading}
-            >
-              Deploy Listing
-            </Button>
-          </div>
-
-        </form>
-      </div>
-    </div>
-  );
+    );
 }
