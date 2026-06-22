@@ -20,7 +20,7 @@ export default function RegisterPage() {
         email: "",
         photo: "",
         password: "",
-        role: "Tenant"
+        role: "tenant"
     });
 
     // Generic change handler tracking keyboard inputs dynamically

@@ -15,6 +15,7 @@ import { HiOutlineArrowLeftOnRectangle, HiOutlineBanknotes, HiOutlineCalendarDay
 import { HiOutlineTrendingUp } from "react-icons/hi";
 import Link from "next/link";
 import AddPropertyPage from "./add-property/page";
+import ProfilePage from "./profile/page";
 
 export default function OwnerDashboardMain() {
     // Navigation active tab controller logic for future router bindings
@@ -298,10 +299,7 @@ export default function OwnerDashboardMain() {
                 </div>
             )}
             {activeTab === "profile" && (
-                <div>
-                    <h2>Welcome to Dashboard Overview</h2>
-                    {/* এখানে ড্যাশবোর্ডের মেইন গ্রাফ বা ডেটা থাকবে */}
-                </div>
+               <ProfilePage></ProfilePage>
             )}
 
         </div>

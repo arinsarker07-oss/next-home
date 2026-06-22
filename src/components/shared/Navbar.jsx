@@ -18,7 +18,6 @@ export default function NavbarComponent() {
   const isLoggedIn = !!session;
   
   const userRole = session?.user.role
-  console.log(userRole);
   
   
   // Utility function confirming exact route matches
