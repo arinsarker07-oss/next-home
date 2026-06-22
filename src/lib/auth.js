@@ -30,7 +30,7 @@ export const auth = betterAuth({
    user: {
         additionalFields: {
             role: {
-                default: "Tenant"
+                default: "tenant"
             },
         }
     },
@@ -42,7 +42,7 @@ export const auth = betterAuth({
           // If a user registers via Google/GitHub, client-side input is skipped.
           // This block safely injects your default 'seeker' role into MongoDB.
           if (!user.role) {
-            user.role = "Tenant"; 
+            user.role = "tenant"; 
           }
           return {
             data: user,

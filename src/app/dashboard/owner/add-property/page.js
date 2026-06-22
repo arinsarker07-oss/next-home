@@ -4,8 +4,8 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
 import { authClient } from "@/lib/auth-client"; // আপনার Better-Auth ক্লায়েন্ট পাথ
-import { 
-  HiHome, HiDocumentText, HiMapPin, HiCurrencyDollar, 
+import {
+  HiHome, HiDocumentText, HiMapPin, HiCurrencyDollar,
   HiClock, HiSquare3Stack3D, HiPhoto
 } from "react-icons/hi2";
 import { FaBed, FaBath } from "react-icons/fa";
@@ -15,7 +15,7 @@ export default function AddPropertyPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isImageUploading, setIsImageUploading] = useState(false);
-  
+
   // 👉 Better-Auth সেশন হুক থেকে কারেন্ট ওনারের ডেটা নেওয়া হচ্ছে
   const { data: session } = authClient.useSession();
 
@@ -30,7 +30,7 @@ export default function AddPropertyPage() {
     bathrooms: "",
     size: "",
     amenities: "",
-    images: "", // ImgBB থেকে জেনারেট হওয়া ফাইনাল URL লিংকটি এখানে জমা হবে
+    images: "",
     extraFeatures: "",
     status: "Pending",
     ownerName: "",
@@ -60,24 +60,24 @@ export default function AddPropertyPage() {
     if (!file) return;
 
     setIsImageUploading(true);
-    
+
     const imgData = new FormData();
     imgData.append("image", file);
 
     try {
-      const IMGBB_API_KEY = "38fb8a923c25fe824ec98aca7500824d"; 
-      
+      const IMGBB_API_KEY = "38fb8a923c25fe824ec98aca7500824d";
+
       const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
         method: "POST",
         body: imgData,
       });
 
       const result = await response.json();
-      
+
       if (result.success) {
         const uploadedUrl = result.data.url;
         console.log("ImgBB Upload Success! URL:", uploadedUrl);
-        
+
 
         setFormData((prev) => ({ ...prev, images: uploadedUrl }));
       } else {
@@ -97,18 +97,33 @@ export default function AddPropertyPage() {
       alert("Please wait until the property image is fully hosted on ImgBB.");
       return;
     }
-    
+
     setIsLoading(true);
-    
     try {
       console.log("Ready to push payload to backend DB:", formData);
-      
-      const payload = await AddProperty(formData)
 
-      setTimeout(() => {
-        setIsLoading(false);
-        // router.push("/dashboard");
-      }, 1000);
+      const payload = await AddProperty(formData)
+      e.target.reset()
+      setFormData({
+        title: "",
+        description: "",
+        location: "",
+        propertyType: "Apartment",
+        price: "",
+        rentType: "Monthly",
+        bedrooms: "",
+        bathrooms: "",
+        size: "",
+        amenities: "",
+        images: "",
+        extraFeatures: "",
+        status: "Pending",
+        ownerName: "",
+        ownerEmail: "",
+        ownerPhone: ""
+      })
+      setIsLoading(false);
+      alert("Property added successfully!");
     } catch (error) {
       console.error(error);
       setIsLoading(false);
@@ -118,7 +133,7 @@ export default function AddPropertyPage() {
   return (
     <div className="min-h-screen w-full  bg-slate-50 py-6 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
       <div className="w-full max-w-3xl bg-white shadow-lg rounded-xl border border-slate-100 overflow-hidden">
-        
+
         {/* Compact Header Banner */}
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 text-white flex justify-between items-center">
           <div>
@@ -132,7 +147,7 @@ export default function AddPropertyPage() {
 
         {/* Optimized Form Grid */}
         <form onSubmit={handleFormSubmit} className="p-6 space-y-5">
-          
+
           {/* Row 1: Title & Location */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1 text-left">
@@ -313,7 +328,7 @@ export default function AddPropertyPage() {
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
               </div>
-              
+
 
               <div className="flex-1 text-right">
                 {isImageUploading && (
@@ -356,7 +371,7 @@ export default function AddPropertyPage() {
               <input
                 type="text"
                 name="ownerName"
-                readOnly 
+                readOnly
                 value={formData.ownerName}
                 placeholder="Loading Name..."
                 className="h-9 px-3 bg-slate-100 border border-slate-200 rounded-md text-xs font-medium text-slate-500 outline-none cursor-not-allowed"
@@ -364,7 +379,7 @@ export default function AddPropertyPage() {
               <input
                 type="email"
                 name="ownerEmail"
-                readOnly 
+                readOnly
                 value={formData.ownerEmail}
                 placeholder="Loading Email..."
                 className="h-9 px-3 bg-slate-100 border border-slate-200 rounded-md text-xs font-medium text-slate-500 outline-none cursor-not-allowed"
@@ -394,7 +409,7 @@ export default function AddPropertyPage() {
               type="submit"
               color="primary"
               className="px-6 h-9 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs tracking-wide shadow-md rounded-lg transition-all transform active:scale-95"
-              isLoading={isLoading || isImageUploading} 
+              isLoading={isLoading || isImageUploading}
               disabled={isImageUploading}
             >
               Deploy Listing

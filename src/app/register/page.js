@@ -179,8 +179,8 @@ export default function RegisterPage() {
                             <button
                                 type="button"
                                 // Updates state payload cleanly using inline wrapper callback
-                                onClick={() => setFormData(prev => ({ ...prev, role: "Tenant" }))}
-                                className={`h-11 rounded-xl font-bold text-sm flex items-center justify-center gap-2 border transition-all ${formData.role === "Tenant"
+                                onClick={() => setFormData(prev => ({ ...prev, role: "tenant" }))}
+                                className={`h-11 rounded-xl font-bold text-sm flex items-center justify-center gap-2 border transition-all ${formData.role === "tenant"
                                     ? "bg-blue-50 border-blue-600 text-blue-600 shadow-sm"
                                     : "bg-transparent border-slate-200 text-slate-600 hover:bg-slate-50"
                                     }`}
@@ -191,8 +191,8 @@ export default function RegisterPage() {
                             <button
                                 type="button"
                                 // Updates state payload cleanly using inline wrapper callback
-                                onClick={() => setFormData(prev => ({ ...prev, role: "Owner" }))}
-                                className={`h-11 rounded-xl font-bold text-sm flex items-center justify-center gap-2 border transition-all ${formData.role === "Owner"
+                                onClick={() => setFormData(prev => ({ ...prev, role: "owner" }))}
+                                className={`h-11 rounded-xl font-bold text-sm flex items-center justify-center gap-2 border transition-all ${formData.role === "owner"
                                     ? "bg-blue-50 border-blue-600 text-blue-600 shadow-sm"
                                     : "bg-transparent border-slate-200 text-slate-600 hover:bg-slate-50"
                                     }`}

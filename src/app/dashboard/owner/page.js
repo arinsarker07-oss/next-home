@@ -108,16 +108,16 @@ export default function OwnerDashboardMain() {
                             <span>Add Property</span>
                         </button>
 
-                            <button
-                                onClick={() => setActiveTab("properties")}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "properties"
-                                    ? "bg-blue-600 text-white shadow-md shadow-blue-600/10"
-                                    : "text-slate-400 hover:bg-slate-900 hover:text-white"
-                                    }`}
-                            >
-                                <HiOutlineDocumentText className="w-4 h-4" />
-                                <span>My Properties</span>
-                            </button>
+                        <button
+                            onClick={() => setActiveTab("properties")}
+                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "properties"
+                                ? "bg-blue-600 text-white shadow-md shadow-blue-600/10"
+                                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                                }`}
+                        >
+                            <HiOutlineDocumentText className="w-4 h-4" />
+                            <span>My Properties</span>
+                        </button>
                         <button
                             onClick={() => setActiveTab("requests")}
                             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "requests"
@@ -289,7 +289,7 @@ export default function OwnerDashboardMain() {
                 <AddPropertyPage></AddPropertyPage>
             )}
             {activeTab === "properties" && (
-               <div> gg</div>
+                <div> gg</div>
             )}
             {activeTab === "requests" && (
                 <div>
