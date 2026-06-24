@@ -5,10 +5,27 @@ import { HiOutlineArrowsRightLeft, HiOutlineMapPin } from 'react-icons/hi2';
 import { MdOutlineBed } from 'react-icons/md';
 import Link from 'next/link';
 import Image from 'next/image';
+import { authClient } from '@/lib/auth-client';
+import { Router } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 export default function PropertyCard({ item }) {
+    const { data: session } = authClient.useSession();
+    const user =session?.user
+    const router =useRouter()
     if (!item) return null;
     const propertyId = item._id || item.id;
+    const redirectpage = (e) => {
+        e.preventDefault();
+        const propertyId = item._id || item.id;
+        const targetUrl = `/properties/${propertyId}`
+        if (!user) {
+            router.push(`/login?next=${encodeURIComponent(targetUrl)}`)
+        }
+        else {
+            router.push(targetUrl);
+        }
+    }
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -83,6 +100,7 @@ export default function PropertyCard({ item }) {
                         </p>
                     </div>
                     <Link
+                        onClick={redirectpage}
                         href={`/properties/${propertyId}`}
                         className="px-4 py-2 bg-slate-950 hover:bg-blue-600 text-white font-bold text-xs rounded-xl transition-all shadow-sm"
                     >

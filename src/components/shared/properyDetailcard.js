@@ -8,22 +8,19 @@ import {
 } from 'react-icons/hi2';
 import { FaStar, FaRegStar, FaCheckSquare } from 'react-icons/fa';
 import Image from 'next/image';
+import { authClient } from '@/lib/auth-client';
 
 // 💡 ধরে নিচ্ছি আপনার একটি AuthContext আছে যা থেকে কারেন্ট লগইন ইউজারের তথ্য পাওয়া যায়
 // import { useAuth } from '@/context/AuthContext'; 
 
 export default function PropertyDetailsPage({property}) {
+    const {data:session }= authClient.useSession()
     const { id } = useParams();
     const router = useRouter();
    
-    // মক ইউজার সেশন (আপনার AuthContext/JWT সেশন থেকে এই ডেটা আসবে)
-    // const { user } = useAuth();
-    const user = {
-        _id: "user_67890",
-        name: "Ashraful Islam",
-        email: "ashraful@example.com",
-        role: "Tenant"
-    };
+    const user = session?.user
+    console.log(user);
+    
 
     // 🛠️ VUL FIX 1: loading state default false kore dilam, karon data direct server theke asche
     const [loading, setLoading] = useState(false); 

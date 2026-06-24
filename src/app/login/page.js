@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation"; // useSearchParams যুক্ত করা হয়েছে
 import { Button } from "@heroui/react";
 import { HiEnvelope, HiLockClosed, HiEye, HiEyeSlash, HiUser, HiBriefcase } from "react-icons/hi2";
 import { FcGoogle } from "react-icons/fc";
@@ -10,9 +10,13 @@ import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
     const router = useRouter();
+    const searchParams = useSearchParams(); // URL search params ট্র্যাকিং এর জন্য
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [selectedRole, setSelectedRole] = useState("Tenant"); // Default manually selected role
+
+    // URL থেকে 'next' প্যারামিটারের ভ্যালু নেওয়া হচ্ছে (যেমন: /properties/id)
+    const nextUrl = searchParams.get('next');
 
     const [formData, setFormData] = useState({
         email: "",
@@ -48,10 +52,17 @@ export default function LoginPage() {
 
             setTimeout(() => {
                 setIsLoading(false);
-                if (selectedRole === "Owner") {
-                    router.push("/dashboard/owner");
+                
+                // যদি URL-এ 'next' প্যারামিটার থাকে, তাহলে সেখানে রিডাইরেক্ট করবে
+                if (nextUrl) {
+                    router.push(decodeURIComponent(nextUrl));
                 } else {
-                    router.push("/dashboard/tenant");
+                    // 'next' না থাকলে আগের লজিক অনুযায়ী রোল ভিত্তিক ড্যাশবোর্ডে যাবে
+                    if (selectedRole === "Owner") {
+                        router.push("/dashboard/owner");
+                    } else {
+                        router.push("/dashboard/tenant");
+                    }
                 }
             });
 
@@ -65,11 +76,13 @@ export default function LoginPage() {
     const handleGoogleSocialLogin = async () => {
         console.log("Executing social authentication framework. Constraint Enforcement: Default role mapped to 'Tenant'");
 
+        // Google লগইনের জন্যও যদি 'next' লিঙ্ক থাকে তবে সেখানে যাবে, নাহলে ডিফল্ট ড্যাশবোর্ডে যাবে
+        const callbackRoute = nextUrl ? decodeURIComponent(nextUrl) : "/dashboard/tenant";
         
         // Better-Auth Social Authentication Hook:
         await authClient.signIn.social({
             provider: "google",
-            callbackURL: "/dashboard/tenant" // Automatically routed to tenant control panel
+            callbackURL: callbackRoute // ডাইনামিক্যালি সেট করা হলো
         });
         
     };
