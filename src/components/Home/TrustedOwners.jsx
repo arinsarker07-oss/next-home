@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { HiCheckBadge } from "react-icons/hi2";
+import Image from "next/image";
 
 export default function TrustedOwners() {
   // Certified premium estate partners listing
@@ -37,7 +38,9 @@ export default function TrustedOwners() {
               className="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col items-center text-center space-y-3 hover:bg-white hover:shadow-xl transition-all duration-300"
             >
               <div className="relative">
-                <img 
+                <Image
+                  width={50}
+                  height={50}
                   src={owner.logo} 
                   alt={owner.name} 
                   className="w-20 h-20 rounded-full object-cover border-2 border-blue-100 p-0.5"

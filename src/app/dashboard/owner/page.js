@@ -89,7 +89,7 @@ export default function OwnerDashboardMain() {
 
                         <button
                             onClick={() => setActiveTab("overview")}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "overview"
+                            className={`w-full cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "overview"
                                 ? "bg-blue-600 text-white shadow-md shadow-blue-600/10"
                                 : "text-slate-400 hover:bg-slate-900 hover:text-white"
                                 }`}
@@ -100,7 +100,7 @@ export default function OwnerDashboardMain() {
 
                         <button
                             onClick={() => setActiveTab("add")}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "add"
+                            className={`w-full cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "add"
                                 ? "bg-blue-600 text-white shadow-md shadow-blue-600/10"
                                 : "text-slate-400 hover:bg-slate-900 hover:text-white"
                                 }`}
@@ -111,7 +111,7 @@ export default function OwnerDashboardMain() {
 
                         <button
                             onClick={() => setActiveTab("properties")}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "properties"
+                            className={`w-full flex cursor-pointer items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "properties"
                                 ? "bg-blue-600 text-white shadow-md shadow-blue-600/10"
                                 : "text-slate-400 hover:bg-slate-900 hover:text-white"
                                 }`}
@@ -121,7 +121,7 @@ export default function OwnerDashboardMain() {
                         </button>
                         <button
                             onClick={() => setActiveTab("requests")}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "requests"
+                            className={`w-full cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "requests"
                                 ? "bg-blue-600 text-white shadow-md shadow-blue-600/10"
                                 : "text-slate-400 hover:bg-slate-900 hover:text-white"
                                 }`}
@@ -131,7 +131,7 @@ export default function OwnerDashboardMain() {
                         </button>
                         <button
                             onClick={() => setActiveTab("profile")}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "profile"
+                            className={`w-full flex cursor-pointer items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "profile"
                                 ? "bg-blue-600 text-white shadow-md shadow-blue-600/10"
                                 : "text-slate-400 hover:bg-slate-900 hover:text-white"
                                 }`}
@@ -145,7 +145,7 @@ export default function OwnerDashboardMain() {
                 {/* Aside Sticky Footer Utilities */}
                 <div className="space-y-1.5 border-t border-slate-900 pt-4">
                     <Link href={"/"}>
-                        <button className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-950/30 transition-all">
+                        <button className="w-full cursor-pointer flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-950/30 transition-all">
                             <HiOutlineArrowLeftOnRectangle className="w-4 h-4" />
                             <span >Exit Dashboard</span>
                         </button>

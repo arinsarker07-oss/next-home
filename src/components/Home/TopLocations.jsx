@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { HiArrowUpRight } from "react-icons/hi2";
+import Image from "next/image";
 
 export default function TopLocations() {
   // High traffic metropolitan locations dataset
@@ -36,7 +37,9 @@ export default function TopLocations() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="h-72 rounded-2xl overflow-hidden relative group cursor-pointer shadow-md"
             >
-              <img 
+              <Image
+                width={100}
+                height={100}
                 src={loc.img} 
                 alt={loc.name} 
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"

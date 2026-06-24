@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
 import { motion } from "framer-motion";
 import { HiOutlineCalendarDays, HiOutlineUser, HiOutlineChevronLeft } from "react-icons/hi2";
+import Image from "next/image";
 
 export default function FullArticlePage() {
   const params = useParams();
@@ -100,10 +101,12 @@ export default function FullArticlePage() {
 
         {/* Big Display Cover Image */}
         <div className="rounded-2xl overflow-hidden h-64 md:h-96 bg-slate-100 border border-slate-100 shadow-sm">
-          <img 
+          <Image
             src={currentArticle.image} 
             alt={currentArticle.title} 
             className="w-full h-full object-cover"
+            width={"1200"}
+            height={"1200"}
           />
         </div>
 

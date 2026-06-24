@@ -10,6 +10,7 @@ import {
 } from "react-icons/hi2";
 import { FaBed, FaBath } from "react-icons/fa";
 import { AddProperty } from "@/lib/action/allProperty";
+import Image from "next/image";
 
 export default function AddPropertyPage() {
   const router = useRouter();
@@ -337,7 +338,7 @@ export default function AddPropertyPage() {
                 {!isImageUploading && formData.images && (
                   <div className="flex items-center justify-end gap-2">
                     <span className="text-xs text-emerald-600 font-bold">✓ Ready</span>
-                    <img src={formData.images} alt="Preview" className="w-8 h-8 rounded object-cover border border-slate-200" />
+                    <Image width={50} height={50} src={formData.images} alt="Preview" className="w-8 h-8 rounded object-cover border border-slate-200" />
                   </div>
                 )}
                 {!isImageUploading && !formData.images && (

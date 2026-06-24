@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { FaStar, FaQuoteLeft } from "react-icons/fa";
+import Image from "next/image";
 
 export default function CustomerReviews() {
   // Required data set configuration containing exactly 4 premium verified tenant reviews
@@ -84,7 +85,9 @@ export default function CustomerReviews() {
 
               {/* User Bio Identity Section */}
               <div className="flex items-center gap-3 mt-6 pt-4 border-t border-slate-200/60">
-                <img 
+                <Image
+                  width={50}
+                  height={50}
                   src={review.avatar} 
                   alt={review.name}
                   className="w-10 h-10 rounded-full object-cover border border-blue-100"

@@ -129,7 +129,7 @@ export default function FilterSection() {
             </div>
 
             {/* Submit Button */}
-            <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm h-12 rounded-2xl shadow-md transition-all uppercase tracking-wider">
+            <button type="submit" className="w-full cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm h-12 rounded-2xl shadow-md transition-all uppercase tracking-wider">
                 Apply Filters
             </button>
         </motion.form>

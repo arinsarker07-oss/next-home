@@ -18,6 +18,7 @@ import {
   HiOutlineUserCircle,
   HiOutlineTrash
 } from "react-icons/hi2";
+import Image from "next/image";
 
 export default function OwnerDashboardMain() {
     const [activeTab, setActiveTab] = useState("overview");
@@ -105,7 +106,7 @@ export default function OwnerDashboardMain() {
 
                         <button
                             onClick={() => setActiveTab("overview")}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "overview"
+                            className={`w-full cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "overview"
                                 ? "bg-blue-600 text-white shadow-md shadow-blue-600/10"
                                 : "text-slate-400 hover:bg-slate-900 hover:text-white"
                                 }`}
@@ -116,7 +117,7 @@ export default function OwnerDashboardMain() {
 
                         <button
                             onClick={() => setActiveTab("add")}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "add"
+                            className={`w-full cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "add"
                                 ? "bg-blue-600 text-white shadow-md shadow-blue-600/10"
                                 : "text-slate-400 hover:bg-slate-900 hover:text-white"
                                 }`}
@@ -127,7 +128,7 @@ export default function OwnerDashboardMain() {
 
                         <button
                             onClick={() => setActiveTab("properties")}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "properties"
+                            className={`w-full cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "properties"
                                 ? "bg-blue-600 text-white shadow-md shadow-blue-600/10"
                                 : "text-slate-400 hover:bg-slate-900 hover:text-white"
                                 }`}
@@ -137,7 +138,7 @@ export default function OwnerDashboardMain() {
                         </button>
                         <button
                             onClick={() => setActiveTab("profile")}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "profile"
+                            className={`w-full cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === "profile"
                                 ? "bg-blue-600 text-white shadow-md shadow-blue-600/10"
                                 : "text-slate-400 hover:bg-slate-900 hover:text-white"
                                 }`}
@@ -150,7 +151,7 @@ export default function OwnerDashboardMain() {
 
                 <div className="space-y-1.5 border-t border-slate-900 pt-4">
                     <Link href={"/"}>
-                        <button className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-950/30 transition-all">
+                        <button className="w-full cursor-pointer flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-950/30 transition-all">
                             <HiOutlineArrowLeftOnRectangle className="w-4 h-4" />
                             <span>Exit Dashboard</span>
                         </button>
@@ -172,7 +173,7 @@ export default function OwnerDashboardMain() {
                         </div>
                         <button
                             onClick={() => router.push("/properties")}
-                            className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition-all shadow-sm"
+                            className="flex cursor-pointer items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition-all shadow-sm"
                         >
                             Explore Properties <HiOutlineArrowUpRight className="w-3.5 h-3.5" />
                         </button>
@@ -214,7 +215,7 @@ export default function OwnerDashboardMain() {
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
                             <h2 className="text-lg font-black text-slate-900 tracking-tight">Recent Booking Activity</h2>
-                            <button onClick={() => setActiveTab("add")} className="text-xs font-bold text-blue-600 hover:underline">
+                            <button onClick={() => setActiveTab("add")} className="text-xs cursor-pointer font-bold text-blue-600 hover:underline">
                                 View All
                             </button>
                         </div>
@@ -234,7 +235,7 @@ export default function OwnerDashboardMain() {
                                         <tr key={item.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-all">
                                             <td className="p-4">
                                                 <div className="flex items-center gap-3">
-                                                    <img src={item.image} alt={item.property} className="w-10 h-10 rounded-xl object-cover border border-slate-100" />
+                                                    <Image width={50} height={50} src={item.image} alt={item.property} className="w-10 h-10 rounded-xl object-cover border border-slate-100" />
                                                     <div className="flex flex-col">
                                                         <span className="text-sm font-bold text-slate-800 tracking-tight">{item.property}</span>
                                                         <span className="text-xs text-slate-400 font-medium">{item.location}</span>
@@ -280,7 +281,7 @@ export default function OwnerDashboardMain() {
                                     <tr key={item.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-all">
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
-                                                <img src={item.image} alt={item.property} className="w-10 h-10 rounded-xl object-cover" />
+                                                <Image width={50} height={50} src={item.image} alt={item.property} className="w-10 h-10 rounded-xl object-cover" />
                                                 <div>
                                                     <p className="text-sm font-bold text-slate-800">{item.property}</p>
                                                     <p className="text-[11px] text-slate-400 font-medium">{item.location}</p>
@@ -328,7 +329,7 @@ export default function OwnerDashboardMain() {
                                     <tr key={item.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-all">
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
-                                                <img src={item.image} alt={item.property} className="w-12 h-12 rounded-xl object-cover" />
+                                                <Image height={50} width={50} src={item.image} alt={item.property} className="w-12 h-12 rounded-xl object-cover" />
                                                 <div>
                                                     <p className="text-sm font-bold text-slate-800">{item.property}</p>
                                                     <p className="text-xs text-slate-400 font-medium">{item.location}</p>
@@ -337,7 +338,7 @@ export default function OwnerDashboardMain() {
                                         </td>
                                         <td className="p-4 text-sm font-bold text-slate-700">{item.rent}</td>
                                         <td className="p-4 text-right">
-                                            <button className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-all" aria-label="Remove item">
+                                            <button className="p-2 cursor-pointer text-rose-500 hover:bg-rose-50 rounded-xl transition-all" aria-label="Remove item">
                                                 <HiOutlineTrash className="w-4 h-4" />
                                             </button>
                                         </td>

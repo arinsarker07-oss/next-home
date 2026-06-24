@@ -3,12 +3,14 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { HiOutlineArrowsRightLeft, HiOutlineMapPin } from 'react-icons/hi2';
 import { MdOutlineBed } from 'react-icons/md';
+import Link from 'next/link';
+import Image from 'next/image';
 
 export default function PropertyCard({ item }) {
     if (!item) return null;
-
+    const propertyId = item._id || item.id;
     return (
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             whileHover={{ y: -6 }}
@@ -17,11 +19,12 @@ export default function PropertyCard({ item }) {
         >
             {/* 📸 ইমেজ সেকশন */}
             <div className="relative w-full h-52 bg-slate-100 overflow-hidden flex-shrink-0">
-                <img 
-                    src={item.images} 
-                    alt={item.title} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
+                <Image
+                    src={item.images || "https://i.ibb.co/Q3VnNyBh/Gemini-Generated-Image-hxva0khxva0khxva.png"}
+                    alt={item.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 <div className="absolute top-3 left-3 z-10">
                     <span className="bg-emerald-50 backdrop-blur-md text-emerald-700 text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full border border-emerald-200/50">
@@ -79,9 +82,12 @@ export default function PropertyCard({ item }) {
                             <span className="text-xs font-medium text-slate-400">/{item.rentType === 'Weekly' ? 'wk' : 'mo'}</span>
                         </p>
                     </div>
-                    <button className="px-4 py-2 bg-slate-950 hover:bg-blue-600 text-white font-bold text-xs rounded-xl transition-all shadow-sm">
+                    <Link
+                        href={`/properties/${propertyId}`}
+                        className="px-4 py-2 bg-slate-950 hover:bg-blue-600 text-white font-bold text-xs rounded-xl transition-all shadow-sm"
+                    >
                         Details
-                    </button>
+                    </Link>
                 </div>
             </div>
         </motion.div>

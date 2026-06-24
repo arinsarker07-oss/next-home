@@ -1,13 +1,14 @@
 'use client';
 
 import React from "react";
-import { Card,  CardHeader, Button } from "@heroui/react";
+import { Card, CardHeader, Button } from "@heroui/react";
 import { motion } from "framer-motion";
-import Link from "next/link"; 
+import Link from "next/link";
 import { HiOutlineCalendarDays, HiOutlineUser, HiOutlineArrowLongRight } from "react-icons/hi2";
+import Image from "next/image";
 
 export default function BlogPage() {
-  
+
   const blogPosts = [
     {
       id: 1,
@@ -50,7 +51,7 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 pb-16">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -68,24 +69,26 @@ export default function BlogPage() {
       </motion.div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
-        <motion.div 
+        <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="show"
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
           {blogPosts.map((post) => (
-            <motion.div 
+            <motion.div
               key={post.id}
               variants={itemVariants}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
             >
               <Card className="h-full border border-slate-100 bg-white shadow-sm rounded-2xl overflow-hidden flex flex-col cursor-pointer group">
                 <CardHeader className="p-0 relative overflow-hidden h-48 bg-slate-200">
-                  <img 
-                    src={post.image} 
-                    alt={post.title} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  <Image
+                    src={post.image}
+                    alt={post.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                   <span className="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider">
                     {post.category}
@@ -115,12 +118,12 @@ export default function BlogPage() {
 
                   <div className="pt-2">
                     <Link href={`/blog/${post.id}`} className="inline-block">
-                      <Button 
-                        variant="light" 
-                        color="primary" 
+                      <Button
+                        variant="light"
+                        color="primary"
                         className="p-0 h-auto font-bold text-xs text-blue-600 hover:bg-transparent flex items-center gap-1.5"
                       >
-                        Read Full Article 
+                        Read Full Article
                         <HiOutlineArrowLongRight className="text-base group-hover:translate-x-1.5 transition-transform" />
                       </Button>
                     </Link>
