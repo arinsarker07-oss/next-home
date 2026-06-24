@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiMapPin, HiHomeModern, HiCurrencyDollar } from "react-icons/hi2";
 import { LuSearch } from "react-icons/lu";
+import FilterSection from "../fillter";
 
 export default function HeroBanner() {
   // Collection of premium real estate background assets for the carousel layer
@@ -15,13 +16,7 @@ export default function HeroBanner() {
 
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Search filter core execution state registers
-  const [filters, setFilters] = useState({
-    location: "",
-    propertyType: "",
-    minPrice: "",
-    maxPrice: ""
-  });
+
 
   // Custom Requirement: Automated background rotation mapping triggering every 3 seconds
   useEffect(() => {
@@ -32,18 +27,7 @@ export default function HeroBanner() {
     return () => clearInterval(slideInterval);
   }, [carouselImages.length]);
 
-  // Handle filter changes safely
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
-  };
 
-  // Process search parameters pipeline
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    console.log("Captured search parameters pipeline initialization data:", filters);
-    // Dynamic router redirect payload hook will be appended here during routing phase
-  };
 
   return (
     <div className="relative w-full h-[620px] md:h-[680px] flex items-center justify-center overflow-hidden bg-slate-900">
@@ -91,93 +75,7 @@ export default function HeroBanner() {
         </div>
 
         {/* Modular High-Precision 4-Filter Search Bar Wrapper */}
-        <motion.form 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.3 }}
-          onSubmit={handleSearchSubmit}
-          className="w-full bg-white/95 backdrop-blur-md p-4 md:p-6 rounded-2xl sm:rounded-full shadow-2xl shadow-slate-950/50 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-center border border-white/20"
-        >
-          {/* Filter 1: Geographic Target Location Input */}
-          <div className="flex items-center gap-3 px-3 py-2 border-b sm:border-b-0 sm:border-r border-slate-200">
-            <HiMapPin className="text-blue-600 text-xl flex-shrink-0" />
-            <div className="w-full text-left">
-              <label className="block text-xs font-extrabold text-black uppercase tracking-wider">Location</label>
-              <input 
-                type="text" 
-                name="location"
-                value={filters.location}
-                onChange={handleInputChange}
-                placeholder="Where to live?" 
-                className="w-full bg-transparent font-semibold text-slate-800 placeholder-slate-400 outline-none mt-0.5"
-              />
-            </div>
-          </div>
-
-          {/* Filter 2: Structural Property Architectural Type Dropdown */}
-          <div className="flex items-center gap-3 px-3 py-2 border-b sm:border-b-0 lg:border-r border-slate-200">
-            <HiHomeModern className="text-blue-600 text-xl flex-shrink-0" />
-            <div className="w-full text-left">
-              <label className="block text-xs font-extrabold  uppercase tracking-wider">Property Type</label>
-              <select 
-                name="propertyType"
-                value={filters.propertyType}
-                onChange={handleInputChange}
-                className="w-full bg-transparent  font-semibold  text-slate-800 outline-none mt-0.5 cursor-pointer appearance-none"
-              >
-                <option  value="">Select Type</option>
-                <option value="Apartment">Apartment</option>
-                <option value="Duplex">Duplex Villa</option>
-                <option value="Studio">Studio Room</option>
-                <option value="Penthouse">Penthouse Suite</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Filter 3: Minimum Budget Allocation Range */}
-          <div className="flex items-center gap-3 px-3 py-2 border-b sm:border-b-0 sm:border-r border-slate-200">
-            <HiCurrencyDollar className="text-blue-600 text-xl flex-shrink-0" />
-            <div className="w-full text-left">
-              <label className="block  font-extrabold text-black uppercase tracking-wider">Min Price</label>
-              <input 
-                type="number" 
-                name="minPrice"
-                value={filters.minPrice}
-                onChange={handleInputChange}
-                placeholder="$ Min" 
-                className="w-full bg-transparent font-semibold text-slate-800 placeholder-slate-400 outline-none mt-0.5"
-              />
-            </div>
-          </div>
-
-          {/* Filter 4: Maximum Budget Cap Allocation */}
-          <div className="flex items-center gap-3 px-3 py-2 border-b sm:border-b-0">
-            <HiCurrencyDollar className="text-blue-600 text-xl flex-shrink-0" />
-            <div className="w-full text-left">
-              <label className="block  font-extrabold text-black uppercase tracking-wider">Max Price</label>
-              <input 
-                type="number" 
-                name="maxPrice"
-                value={filters.maxPrice}
-                onChange={handleInputChange}
-                placeholder="$ Max" 
-                className="w-full bg-transparent  font-semibold text-slate-800 placeholder-slate-400 outline-none mt-0.5"
-              />
-            </div>
-          </div>
-
-          {/* Submission Gate: Execute Data Optimization Flow */}
-          <div className="w-full lg:col-span-1 pt-2 sm:pt-0">
-            <button 
-              type="submit"
-              className="w-full h-12 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm tracking-wide flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30 transition-all transform active:scale-95"
-            >
-              <LuSearch className="text-lg" />
-              <span>Search</span>
-            </button>
-          </div>
-
-        </motion.form>
+        <FilterSection></FilterSection>
 
       </div>
     </div>
