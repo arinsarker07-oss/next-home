@@ -11,6 +11,8 @@ const page = async() => {
     
     const UserBooking = await getBookingUserData(userId)
     const FavoriteProperty = await getFavoriteData(userId)
+    console.log(UserBooking);
+    
     
     return (
         <div>

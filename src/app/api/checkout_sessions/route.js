@@ -1,3 +1,4 @@
+
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
@@ -13,6 +14,10 @@ export async function POST(req) {
         const formData = await req.formData();
         const price = formData.get('price'); // প্রোপার্টির প্রাইস
         const propertyName = formData.get('propertyName'); // প্রোপার্টির নাম
+        const PaymentStatus = formData.get('paymentStatus');
+        const userEmail = formData.get("UserEmail")
+
+
 
         // ২. স্ট্রাইপ সেশন তৈরি (price_data ব্যবহার করে)
         const session = await stripe.checkout.sessions.create({
@@ -24,14 +29,20 @@ export async function POST(req) {
                             name: propertyName, // ডাইনামিক প্রোপার্টি টাইটেল
                         },
                         // স্ট্রাইপ পয়সা/cents হিসাব করে, তাই অ্যামাউন্টকে ১০০ দিয়ে গুণ করতে হবে
-                        unit_amount: Number(price) * 100, 
+                        unit_amount: Number(price) * 100,
                     },
                     quantity: 1,
                 },
             ],
+            customer_email: userEmail,
             mode: 'payment',
             success_url: `${origin}/properties/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${origin}/properties`, // ক্যানসেল ইউআরএল যোগ করতে পারেন
+
+            metadata: {
+                tenantId: formData.get('tenantId'),     
+                propertyId: formData.get('propertyId')
+            },
         });
 
         // ব্রাউজারকে স্ট্রাইপ পেমেন্ট পেজে রিডাইরেক্ট করা

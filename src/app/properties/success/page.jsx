@@ -3,48 +3,64 @@ import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Button } from '@heroui/react';
-import Link from 'next/link';
 import { 
   HiCheckCircle, 
   HiOutlineCalendar, 
-  HiOutlineCreditCard, 
-  HiOutlineDocumentCheck,
   HiArrowRight
 } from 'react-icons/hi2';
 
-// Next.js-এ useSearchParams ব্যবহার করলে সেটিকে Suspense-এর ভেতরে রাখা বেস্ট প্র্যাকটিস
 function SuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  // স্ট্রাইপ সফল পেমেন্টের পর ডিফল্টভাবে 'session_id' কি-তে আইডি পাঠায়
   const sessionId = searchParams.get('session_id');
   
-  // আমরা এখানে কিছু স্টেট ব্যবহার করব যাতে ডাটা প্রসেসিং স্ট্যাটাস দেখানো যায়
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!sessionId) {
-      setError('Invalid or missing session session_id.');
+      setError('Invalid or missing session id.');
       setLoading(false);
       return;
     }
 
-    // এখানে আপনি চাইলে একটি এপিআই কল করে ডাটাবেজে বুকিং স্ট্যাটাস 'Pending' থেকে 'Paid' বা 'Success' করতে পারেন।
-    // আপাতত ক্লায়েন্ট সাইড লোডিং সিমুলেশন করা হলো
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
+    // 🔥 এখানে আপনার এক্সপ্রেস ব্যাকএন্ড এপিআই কল করা হচ্ছে স্ট্যাটাস আপডেট করার জন্য
+    fetch('http://localhost:5000/api/bookings/update-status', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ sessionId: sessionId }),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('Failed to update booking status on backend.');
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data.success) {
+          console.log("Express Backend updated successfully:", data.message);
+          setLoading(false);
+        } else {
+          setError(data.message || 'Something went wrong.');
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.error("Error updating backend:", err);
+        setError(err.message || 'Server connection error.');
+        setLoading(false);
+      });
 
-    return () => clearTimeout(timer);
   }, [sessionId]);
 
   if (loading) {
     return (
       <div className="min-h-[85vh] flex flex-col items-center justify-center bg-slate-50/50">
         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-slate-900"></div>
-        <p className="text-xs text-slate-500 font-medium mt-4">Verifying your payment, please wait...</p>
+        <p className="text-xs text-slate-500 font-medium mt-4">Verifying your payment & updating booking, please wait...</p>
       </div>
     );
   }
@@ -134,7 +150,6 @@ function SuccessContent() {
             transition={{ delay: 0.3 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2"
           >
-            {/* ড্যাশবোর্ডে যাওয়ার বাটন */}
             <Button
               onPress={() => router.push('/dashboard/tenant')}
               variant="bordered"
@@ -145,7 +160,6 @@ function SuccessContent() {
               Go to Dashboard
             </Button>
 
-            {/* হোম পেজে যাওয়ার বাটন */}
             <Button
               onPress={() => router.push('/')}
               color="default"
@@ -163,7 +177,6 @@ function SuccessContent() {
   );
 }
 
-// মেইন এক্সপোর্ট যা নেক্সট জেএস রান করবে
 export default function PaymentSuccessPage() {
   return (
     <Suspense fallback={

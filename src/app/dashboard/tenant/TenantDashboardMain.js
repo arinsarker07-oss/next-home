@@ -61,11 +61,12 @@ export default function TenantDashboardMain({ UserBooking ,FavoriteProperty }) {
         image: item.propertyImage,
         rent: item.price,
         date: item.moveInDate,
-        paymentStatus: "Paid",
-        status: "Pending",
+        paymentStatus: item.paymentStatus,
+        status: "pending",
 
     })) || [];
-
+   console.log(recentBookings,"recent booking");
+   
     const favoriteItems = FavoriteProperty?.map((item) => ({
         id: item._id,
         propertyId: item.propertyId,
@@ -293,7 +294,7 @@ const handledelete = async (propertyId) => { // 🌟 parameter নাম propert
                                 </tr>
                             </thead>
                             <tbody>
-                                {recentBookings.map((item) => (
+                                {recentBookings.map((item) => (  
                                     <tr key={item.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-all">
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">

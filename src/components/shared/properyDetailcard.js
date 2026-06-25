@@ -118,7 +118,8 @@ export default function PropertyDetailsPage({ property }) {
             price: property?.price,
             propertyName: property?.title,
             propertyLocation: property?.location,
-            propertyImage: property?.images
+            propertyImage: property?.images,
+            paymentStatus: "unpaid"
         };
 
         try {
@@ -429,6 +430,9 @@ export default function PropertyDetailsPage({ property }) {
                                 <input type="hidden" name="propertyId" value={id} />
                                 <input type="hidden" name="moveInDate" value={moveInDate} />
                                 <input type="hidden" name="contactNumber" value={contactNumber} />
+                                <input type="hidden" name="paymentStatus" defaultValue="unpaid" />
+                                <input type="hidden" name="UserEmail" defaultValue={user.email} />
+                                <input type="hidden" name="tenantId" defaultValue={user.id} />
                                 <input type="hidden" name="additionalNotes" value={additionalNotes} />
                                 <input type="hidden" name="propertyName" value={ property?.title || 'Property Booking'} />
                                 <input type="hidden" name="price" value={ property?.price ? Number(property.price) : 0} />

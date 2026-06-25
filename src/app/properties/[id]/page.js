@@ -2,11 +2,10 @@ import PropertyDetailsPage from '@/components/shared/properyDetailcard';
 import { PropertyDetailId } from '@/lib/api/propertyDetail';
 import React from 'react';
 
-const PropertyDetail = async({params}) => {
-    const {id}= await params
-    console.log(id);
+const PropertyDetail = async ({ params }) => {
+    const { id } = await params
     
-    const property= await PropertyDetailId(id)
+    const property = await PropertyDetailId(id)
     return (
         <div>
             <PropertyDetailsPage property={property}></PropertyDetailsPage>
