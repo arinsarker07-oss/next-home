@@ -13,9 +13,6 @@ import { BookingData } from '@/lib/action/Booking';
 import { FavoriteProperty, UnfavoriteProperty } from '@/lib/action/favouriteProperty';
 
 
-// 💡 ধরে নিচ্ছি আপনার একটি AuthContext আছে যা থেকে কারেন্ট লগইন ইউজারের তথ্য পাওয়া যায়
-// import { useAuth } from '@/context/AuthContext'; 
-
 export default function PropertyDetailsPage({ property }) {
     const { data: session } = authClient.useSession()
     const { id } = useParams();
@@ -25,17 +22,17 @@ export default function PropertyDetailsPage({ property }) {
 
 
 
-    // 🛠️ VUL FIX 1: loading state default false kore dilam, karon data direct server theke asche
+    // loading state 
     const [loading, setLoading] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // বুকিং ফর্ম স্টেট (নাম এবং ইমেল ইউজারের সেশন থেকে ডাইনামিক্যালি রিড-অনলি থাকবে)
+    // booking form state 
     const [moveInDate, setMoveInDate] = useState('');
     const [contactNumber, setContactNumber] = useState('');
     const [additionalNotes, setAdditionalNotes] = useState('');
 
-    // রিভিউ স্টেট
+//    review state 
     const [rating, setRating] = useState(5);
     const [comment, setComment] = useState('');
     const [reviews, setReviews] = useState([]);
@@ -43,9 +40,8 @@ export default function PropertyDetailsPage({ property }) {
     useEffect(() => {
         const tenantId = user?._id || user?.id;
 
-        // id এবং tenantId দুইটাই থাকতে হবে, নাহলে চেক করবে না
         if (id && tenantId) {
-            // চাবির সাথে tenantId জুড়ে দেওয়া হয়েছে
+           
             const savedStatus = localStorage.getItem(`favorite_${tenantId}_${id}`);
             if (savedStatus === "true") {
                 setIsFavorite(true);
@@ -53,10 +49,10 @@ export default function PropertyDetailsPage({ property }) {
                 setIsFavorite(false);
             }
         } else {
-            // ইউজার লগআউট অবস্থায় থাকলে বা অন্য আইডিতে গেলে ডিফল্ট ফলস থাকবে
+            
             setIsFavorite(false);
         }
-    }, [id, user]); // ইউজার চেঞ্জ হলেও এটি আবার রান করবে
+    }, [id, user]);
 
     const handleToggleFavorite = async () => {
         if (!user) {
@@ -65,20 +61,19 @@ export default function PropertyDetailsPage({ property }) {
         }
 
         const tenantId = user._id || user.id;
-        // এই ইউজারের জন্য ইউনিক লোকাল স্টোরেজ কী (Key)
         const localStorageKey = `favorite_${tenantId}_${id}`;
 
         try {
             if (isFavorite) {
-                // 🔴 ১. ডিলিট করো
+              
                 await UnfavoriteProperty(id, tenantId);
 
                 setIsFavorite(false);
-                localStorage.removeItem(localStorageKey); // ইউনিক কী ডিলিট
+                localStorage.removeItem(localStorageKey); 
 
                 alert("Removed from Favorites!");
             } else {
-                // 🟢 ২. অ্যাড করো
+                
                 const FavoritePayload = {
                     propertyId: id,
                     tenantId: tenantId,
@@ -93,7 +88,7 @@ export default function PropertyDetailsPage({ property }) {
                 await FavoriteProperty(FavoritePayload);
 
                 setIsFavorite(true);
-                localStorage.setItem(localStorageKey, "true"); // ইউনিক কীতে সেভ
+                localStorage.setItem(localStorageKey, "true"); 
 
                 alert("Added to Favorites successfully!");
             }
@@ -102,7 +97,7 @@ export default function PropertyDetailsPage({ property }) {
         }
     };
 
-    // 📅 ৩. বুকিং কনফার্ম করে স্ট্রাইপ পেমেন্টে রিডাইরেক্ট করা
+    // comfirm booking and redirect to stripe 
     const handleBookingSubmit = async (e) => {
         e.preventDefault();
 
@@ -127,27 +122,24 @@ export default function PropertyDetailsPage({ property }) {
         };
 
         try {
-            // ১. ব্যাকএন্ডে বুকিং ডেটা পাঠানো হচ্ছে
+            //post booking data to backend 
             const payload = await BookingData(bookingPayload);
 
-            // 🌟 চেক করো: ব্যাকএন্ড থেকে আসা রেসপন্সে কোনো এরর বা 'Already Booked' মেসেজ আছে কিনা
+            // cheek backend 
             if (payload?.message === "Already Booked" || payload?.status === 400 || payload?.data?.message === "Already Booked") {
                 alert("You have already booked this property!");
-                setIsModalOpen(false); // মোডাল বন্ধ করে দাও
-                return; // ফাংশন এখানেই থামিয়ে দাও, নিচের সাকসেস অ্যালার্টে যেতে দেবে না
+                setIsModalOpen(false); 
+                return; 
             }
 
-            // ২. যদি উপরোক্ত কোনো ডুপ্লিকেট কন্ডিশন না মেলে, তবেই এটি একদম নতুন ও সফল বুকিং
+            // if no condition match
             setIsModalOpen(false);
-            console.log("Booking successful:", payload);
-            alert("Booking submitted successfully!");
-
-            // router.push(`/payment/checkout?...`);
+            document.getElementById('stripe-form').submit()
 
         } catch (error) {
             console.error("Booking catch block error:", error);
 
-            // যদি তোমার এপিআই ফাংশনটি (Axios/Fetch) ক্যাচ ব্লকে এরর পাঠায়:
+           
             const serverMessage = error?.response?.data?.message || error?.message;
 
             if (serverMessage === "Already Booked" || error?.response?.status === 400) {
@@ -158,7 +150,7 @@ export default function PropertyDetailsPage({ property }) {
         }
     };
 
-    // 💬 ৪. রিভিউ সাবমিট হ্যান্ডলার
+    // 💬  review handeler
     const handleReviewSubmit = (e) => {
         e.preventDefault();
         if (!comment.trim()) return;
@@ -186,9 +178,8 @@ export default function PropertyDetailsPage({ property }) {
         <div className="min-h-screen bg-slate-50/50 py-10 px-4 sm:px-6 lg:px-8">
             <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-                {/* ─── বাম দিক: মূল কন্টেন্ট ─── */}
                 <div className="lg:col-span-2 space-y-8">
-                    {/* ইমেজ সেকশন */}
+         
                     <div className="relative h-[400px] rounded-3xl overflow-hidden shadow-sm group border border-slate-100">
                         <Image
                             src={property.images || "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267"}
@@ -199,7 +190,7 @@ export default function PropertyDetailsPage({ property }) {
                         />
                     </div>
 
-                    {/* প্রোপার্টি মেটা ও টাইটেল */}
+                 
                     <div className="bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm space-y-4">
                         <div className="flex flex-wrap gap-2">
                             <span className="bg-blue-50 text-blue-600 text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider border border-blue-100">{property.propertyType}</span>
@@ -212,7 +203,7 @@ export default function PropertyDetailsPage({ property }) {
                         </div>
                     </div>
 
-                    {/* স্পেসিফিকেশন গ্রিড */}
+                  
                     <div className="grid grid-cols-3 gap-4 bg-white p-5 rounded-3xl border border-slate-200/60 shadow-sm text-center">
                         <div>
                             <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Bedrooms</p>
@@ -228,13 +219,12 @@ export default function PropertyDetailsPage({ property }) {
                         </div>
                     </div>
 
-                    {/* ডেসক্রিপশন */}
+                   
                     <div className="bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm space-y-3">
                         <h2 className="text-base font-black text-slate-800 uppercase tracking-tight">About This Property</h2>
                         <p className="text-slate-600 text-sm leading-relaxed font-medium">{property.description}</p>
                     </div>
 
-                    {/* এ্যামেনিটিজ */}
                     <div className="bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm space-y-4">
                         <h2 className="text-base font-black text-slate-800 uppercase tracking-tight">Amenities Included</h2>
                         <div className="flex flex-wrap gap-2">
@@ -245,7 +235,7 @@ export default function PropertyDetailsPage({ property }) {
                         </div>
                     </div>
 
-                    {/* রিভিউ মডিউল */}
+                
                     <div className="bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm space-y-6">
                         <h2 className="text-base font-black text-slate-800 uppercase tracking-tight">Ratings & Reviews ({reviews.length})</h2>
 
@@ -290,7 +280,7 @@ export default function PropertyDetailsPage({ property }) {
                     </div>
                 </div>
 
-                {/* ─── ডান দিক: স্টিকি প্রাইসিং ও বুকিং অ্যাকশন ─── */}
+               
                 <div className="space-y-6">
                     <div className="bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm sticky top-6 space-y-4">
                         <div>
@@ -301,7 +291,7 @@ export default function PropertyDetailsPage({ property }) {
                             </p>
                         </div>
 
-                        {/* বুকিং ট্রিগার বাটন */}
+                      
                         <button
                             onClick={() => setIsModalOpen(true)}
                             className="w-full cursor-pointer bg-slate-950 hover:bg-blue-600 text-white font-bold text-xs h-12 rounded-2xl shadow-sm transition-all uppercase tracking-wider"
@@ -309,7 +299,7 @@ export default function PropertyDetailsPage({ property }) {
                             Book Property Now
                         </button>
 
-                        {/* এড টু ফেভরিট বাটন */}
+                        {/*add to favorite*/}
                         <button
                             onClick={handleToggleFavorite}
                             className='w-full cursor-pointer flex items-center justify-center gap-2 font-bold text-xs h-12 rounded-2xl border transition-all uppercase tracking-wider bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-100'>
@@ -332,7 +322,7 @@ export default function PropertyDetailsPage({ property }) {
 
             </div>
 
-            {/* ─── ডাইনামিক বুকিং মডাল ─── */}
+            {/* booking modal */}
             <AnimatePresence>
                 {isModalOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
@@ -345,7 +335,7 @@ export default function PropertyDetailsPage({ property }) {
                             <h2 className="text-lg font-black text-slate-800 tracking-tight mb-5">Confirm Rental Booking</h2>
 
                             <form onSubmit={handleBookingSubmit} className="space-y-4">
-                                {/* নাম */}
+                            
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block pl-1">Full Name</label>
                                     <div className="relative flex items-center">
@@ -359,7 +349,7 @@ export default function PropertyDetailsPage({ property }) {
                                     </div>
                                 </div>
 
-                                {/* ইমেল */}
+                              
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block pl-1">Email Address</label>
                                     <div className="relative flex items-center">
@@ -373,7 +363,7 @@ export default function PropertyDetailsPage({ property }) {
                                     </div>
                                 </div>
 
-                                {/* মুভ-ইন ডেট */}
+                           
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block pl-1">Target Move-In Date</label>
                                     <div className="relative flex items-center">
@@ -388,7 +378,7 @@ export default function PropertyDetailsPage({ property }) {
                                     </div>
                                 </div>
 
-                                {/* কন্টাক্ট নাম্বার */}
+                             
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block pl-1">Active Contact Number</label>
                                     <div className="relative flex items-center">
@@ -404,7 +394,7 @@ export default function PropertyDetailsPage({ property }) {
                                     </div>
                                 </div>
 
-                                {/* অতিরিক্ত নোট */}
+                             
                                 <div className="space-y-1">
                                     <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block pl-1">Additional Notes (Optional)</label>
                                     <textarea
@@ -416,7 +406,7 @@ export default function PropertyDetailsPage({ property }) {
                                     />
                                 </div>
 
-                                {/* বাটন একশন */}
+                              
                                 <div className="flex gap-3 pt-3">
                                     <button
                                         type="button"
@@ -425,13 +415,23 @@ export default function PropertyDetailsPage({ property }) {
                                     >
                                         Cancel
                                     </button>
+
+                                  
                                     <button
                                         type="submit"
-                                        className="w-1/2 cursor-pointer bg-slate-950 hover:bg-blue-600 text-white font-bold text-xs h-11 rounded-xl transition-colors shadow-sm"
+                                        className="w-50 cursor-pointer bg-slate-950 hover:bg-blue-600 text-white font-bold text-xs h-11 rounded-xl transition-colors shadow-sm"
                                     >
                                         Proceed to Pay
                                     </button>
                                 </div>
+                            </form>
+                            <form id="stripe-form" action="/api/checkout_sessions" method="POST" className="hidden">
+                                <input type="hidden" name="propertyId" value={id} />
+                                <input type="hidden" name="moveInDate" value={moveInDate} />
+                                <input type="hidden" name="contactNumber" value={contactNumber} />
+                                <input type="hidden" name="additionalNotes" value={additionalNotes} />
+                                <input type="hidden" name="propertyName" value={ property?.title || 'Property Booking'} />
+                                <input type="hidden" name="price" value={ property?.price ? Number(property.price) : 0} />
                             </form>
                         </motion.div>
                     </div>
