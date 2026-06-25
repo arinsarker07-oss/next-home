@@ -3,27 +3,30 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    HiOutlineMapPin,  HiHeart,
+    HiOutlineMapPin, HiHeart,
     HiOutlinePhone, HiOutlineEnvelope, HiOutlineUser, HiOutlineCalendar
 } from 'react-icons/hi2';
 import { FaStar, FaRegStar, FaCheckSquare } from 'react-icons/fa';
 import Image from 'next/image';
 import { authClient } from '@/lib/auth-client';
+import { BookingData } from '@/lib/action/Booking';
+import { FavoriteProperty, UnfavoriteProperty } from '@/lib/action/favouriteProperty';
+
 
 // 💡 ধরে নিচ্ছি আপনার একটি AuthContext আছে যা থেকে কারেন্ট লগইন ইউজারের তথ্য পাওয়া যায়
 // import { useAuth } from '@/context/AuthContext'; 
 
-export default function PropertyDetailsPage({property}) {
-    const {data:session }= authClient.useSession()
+export default function PropertyDetailsPage({ property }) {
+    const { data: session } = authClient.useSession()
     const { id } = useParams();
     const router = useRouter();
-   
     const user = session?.user
-    console.log(user);
-    
+    // console.log(property);
+
+
 
     // 🛠️ VUL FIX 1: loading state default false kore dilam, karon data direct server theke asche
-    const [loading, setLoading] = useState(false); 
+    const [loading, setLoading] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -37,44 +40,122 @@ export default function PropertyDetailsPage({property}) {
     const [comment, setComment] = useState('');
     const [reviews, setReviews] = useState([]);
 
-    // ❤️ ২. ডাটাবেজে ফেভরিট অ্যাড/রিমুভ করার হ্যান্ডলার
+    useEffect(() => {
+        const tenantId = user?._id || user?.id;
+
+        // id এবং tenantId দুইটাই থাকতে হবে, নাহলে চেক করবে না
+        if (id && tenantId) {
+            // চাবির সাথে tenantId জুড়ে দেওয়া হয়েছে
+            const savedStatus = localStorage.getItem(`favorite_${tenantId}_${id}`);
+            if (savedStatus === "true") {
+                setIsFavorite(true);
+            } else {
+                setIsFavorite(false);
+            }
+        } else {
+            // ইউজার লগআউট অবস্থায় থাকলে বা অন্য আইডিতে গেলে ডিফল্ট ফলস থাকবে
+            setIsFavorite(false);
+        }
+    }, [id, user]); // ইউজার চেঞ্জ হলেও এটি আবার রান করবে
+
     const handleToggleFavorite = async () => {
         if (!user) {
             router.push('/login');
             return;
         }
 
+        const tenantId = user._id || user.id;
+        // এই ইউজারের জন্য ইউনিক লোকাল স্টোরেজ কী (Key)
+        const localStorageKey = `favorite_${tenantId}_${id}`;
+
         try {
-            // ব্যাকএন্ডে রিকোয়েস্ট পাঠানো
-            // await axiosSecure.post('/favorites', { userId: user._id, propertyId: id });
-            setIsFavorite(!isFavorite);
-            alert(isFavorite ? "Removed from Favorites!" : "Added to Favorites successfully!");
+            if (isFavorite) {
+                // 🔴 ১. ডিলিট করো
+                await UnfavoriteProperty(id, tenantId);
+
+                setIsFavorite(false);
+                localStorage.removeItem(localStorageKey); // ইউনিক কী ডিলিট
+
+                alert("Removed from Favorites!");
+            } else {
+                // 🟢 ২. অ্যাড করো
+                const FavoritePayload = {
+                    propertyId: id,
+                    tenantId: tenantId,
+                    tenantName: user.name,
+                    tenantEmail: user.email,
+                    price: property?.price,
+                    propertyName: property?.title,
+                    propertyLocation: property?.location,
+                    propertyImage: property?.images
+                };
+
+                await FavoriteProperty(FavoritePayload);
+
+                setIsFavorite(true);
+                localStorage.setItem(localStorageKey, "true"); // ইউনিক কীতে সেভ
+
+                alert("Added to Favorites successfully!");
+            }
         } catch (error) {
             console.error("Error updating favorite status", error);
         }
     };
 
     // 📅 ৩. বুকিং কনফার্ম করে স্ট্রাইপ পেমেন্টে রিডাইরেক্ট করা
-    const handleBookingSubmit = (e) => {
+    const handleBookingSubmit = async (e) => {
         e.preventDefault();
-        setIsModalOpen(false);
 
-        // বুকিং ডেটা অবজেক্ট তৈরি (ইউজার ইনফো ব্যাকএন্ড বা পেমেন্ট গেটওয়েতে পাঠানোর জন্য)
+        const tenantId = user?._id || user?.id;
+        if (!tenantId) {
+            router.push('/login');
+            return;
+        }
+
         const bookingPayload = {
             propertyId: id,
-            tenantId: user._id,
-            tenantName: user.name,
-            tenantEmail: user.email,
+            tenantId: tenantId,
+            tenantName: user?.name,
+            tenantEmail: user?.email,
             moveInDate,
             contactNumber,
             additionalNotes,
-            price: property?.price
+            price: property?.price,
+            propertyName: property?.title,
+            propertyLocation: property?.location,
+            propertyImage: property?.images
         };
 
-        console.log("Proceeding to payment with details:", bookingPayload);
+        try {
+            // ১. ব্যাকএন্ডে বুকিং ডেটা পাঠানো হচ্ছে
+            const payload = await BookingData(bookingPayload);
 
-        // স্ট্রাইপ পেমেন্ট চেকআউট পেজে পাঠানো হচ্ছে কুয়েরি প্যারামস সহ
-        router.push(`/payment/checkout?propertyId=${id}&date=${moveInDate}&phone=${contactNumber}`);
+            // 🌟 চেক করো: ব্যাকএন্ড থেকে আসা রেসপন্সে কোনো এরর বা 'Already Booked' মেসেজ আছে কিনা
+            if (payload?.message === "Already Booked" || payload?.status === 400 || payload?.data?.message === "Already Booked") {
+                alert("You have already booked this property!");
+                setIsModalOpen(false); // মোডাল বন্ধ করে দাও
+                return; // ফাংশন এখানেই থামিয়ে দাও, নিচের সাকসেস অ্যালার্টে যেতে দেবে না
+            }
+
+            // ২. যদি উপরোক্ত কোনো ডুপ্লিকেট কন্ডিশন না মেলে, তবেই এটি একদম নতুন ও সফল বুকিং
+            setIsModalOpen(false);
+            console.log("Booking successful:", payload);
+            alert("Booking submitted successfully!");
+
+            // router.push(`/payment/checkout?...`);
+
+        } catch (error) {
+            console.error("Booking catch block error:", error);
+
+            // যদি তোমার এপিআই ফাংশনটি (Axios/Fetch) ক্যাচ ব্লকে এরর পাঠায়:
+            const serverMessage = error?.response?.data?.message || error?.message;
+
+            if (serverMessage === "Already Booked" || error?.response?.status === 400) {
+                alert("You have already booked this property!");
+            } else {
+                alert("Something went wrong! Please try again.");
+            }
+        }
     };
 
     // 💬 ৪. রিভিউ সাবমিট হ্যান্ডলার
@@ -97,8 +178,8 @@ export default function PropertyDetailsPage({property}) {
     if (!property) return <div className="min-h-screen flex items-center justify-center text-rose-500 font-bold">Property Not Found!</div>;
 
     // 🛠️ VUL FIX 2: property.amenities string thakle array te convert korar bypass logic
-    const amenitiesList = typeof property.amenities === 'string' 
-        ? property.amenities.split(',').map(a => a.trim()) 
+    const amenitiesList = typeof property.amenities === 'string'
+        ? property.amenities.split(',').map(a => a.trim())
         : (property.amenities || []);
 
     return (
