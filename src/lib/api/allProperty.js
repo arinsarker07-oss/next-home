@@ -1,3 +1,5 @@
+import { serverFetch } from "../core/server";
+
 export const getAllProperty = async ({ search = '', type = '', sort = '' }) => {
     try {
         // আপনার ব্যাকএন্ডের ইউআরএল অনুযায়ী কুয়েরি পাঠানো হচ্ছে
@@ -12,3 +14,7 @@ export const getAllProperty = async ({ search = '', type = '', sort = '' }) => {
         return [];
     }
 };
+
+export const AllProperty = async()=>{
+    return serverFetch("/properties")
+}

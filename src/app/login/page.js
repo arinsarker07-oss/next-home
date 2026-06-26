@@ -9,6 +9,9 @@ import { FcGoogle } from "react-icons/fc";
 import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
+    const { data: session } = authClient.useSession();
+    console.log(session);
+    
     const router = useRouter();
     const searchParams = useSearchParams(); // URL search params ট্র্যাকিং এর জন্য
     const [isLoading, setIsLoading] = useState(false);
@@ -42,27 +45,24 @@ export default function LoginPage() {
                 password: formData.password,
             });
             console.log(data);
-            
+
             if (error) {
                 console.error("Authentication rejected:", error.message);
                 setIsLoading(false);
                 return;
             }
-            
+
 
             setTimeout(() => {
                 setIsLoading(false);
-                
+
                 // যদি URL-এ 'next' প্যারামিটার থাকে, তাহলে সেখানে রিডাইরেক্ট করবে
                 if (nextUrl) {
                     router.push(decodeURIComponent(nextUrl));
                 } else {
-                    // 'next' না থাকলে আগের লজিক অনুযায়ী রোল ভিত্তিক ড্যাশবোর্ডে যাবে
-                    if (selectedRole === "Owner") {
-                        router.push("/dashboard/owner");
-                    } else {
-                        router.push("/dashboard/tenant");
-                    }
+                    
+                        router.push("/");
+                  
                 }
             });
 
@@ -78,13 +78,13 @@ export default function LoginPage() {
 
         // Google লগইনের জন্যও যদি 'next' লিঙ্ক থাকে তবে সেখানে যাবে, নাহলে ডিফল্ট ড্যাশবোর্ডে যাবে
         const callbackRoute = nextUrl ? decodeURIComponent(nextUrl) : "/dashboard/tenant";
-        
+
         // Better-Auth Social Authentication Hook:
         await authClient.signIn.social({
             provider: "google",
             callbackURL: callbackRoute // ডাইনামিক্যালি সেট করা হলো
         });
-        
+
     };
 
     return (

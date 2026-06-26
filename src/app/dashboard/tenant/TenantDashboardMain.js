@@ -308,12 +308,12 @@ const handledelete = async (propertyId) => { // 🌟 parameter নাম propert
                                         <td className="p-4 text-sm font-semibold text-slate-600">{item.date}</td>
                                         <td className="p-4 text-sm font-bold text-slate-800">{item.rent}</td>
                                         <td className="p-4">
-                                            <Chip className="font-bold text-[10px]" color="success" size="sm" variant="dot">
+                                            <Chip className="font-bold text-[10px]" color={item.paymentStatus === "paid" ? "success" : "danger"}  variant="dot">
                                                 {item.paymentStatus}
                                             </Chip>
                                         </td>
                                         <td className="p-4">
-                                            <Chip className="font-bold text-[10px]" color={item.status === "Approved" ? "success" : "warning"} size="sm" variant="flat">
+                                            <Chip className="font-bold text-[10px]" color={item.status === "Approved" ? "success" : "warning"} variant="flat">
                                                 {item.status}
                                             </Chip>
                                         </td>
