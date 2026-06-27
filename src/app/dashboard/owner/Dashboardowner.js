@@ -17,10 +17,11 @@ import Link from "next/link";
 import AddPropertyPage from "./add-property/page";
 import ProfilePage from "./profile/page";
 import MyPropertiesPage from "./myProperty/myProperty";
+import BookingRequestPage from "./booking-request/page";
 
-export default function OwnerDashboardMain({ ownerProperty }) {
+export default function OwnerDashboardMain({ ownerProperty ,BookingData }) {
     console.log(ownerProperty,"home");
-
+    
     const [activeTab, setActiveTab] = useState("overview");
 
     // Summary Metrics data mimicking successful transactional entries
@@ -295,10 +296,7 @@ export default function OwnerDashboardMain({ ownerProperty }) {
                 <MyPropertiesPage properties={ownerProperty}></MyPropertiesPage>
             )}
             {activeTab === "requests" && (
-                <div>
-                    <h2>Welcome to Dashboard Overview</h2>
-                    {/* এখানে ড্যাশবোর্ডের মেইন গ্রাফ বা ডেটা থাকবে */}
-                </div>
+               <BookingRequestPage BookingData={BookingData} ownerProperty={ownerProperty} ></BookingRequestPage>
             )}
             {activeTab === "profile" && (
                 <ProfilePage></ProfilePage>
