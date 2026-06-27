@@ -1,38 +1,126 @@
 'use client';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
-import { HiPencilSquare, HiTrash } from 'react-icons/hi2';
+import { HiPencilSquare, HiTrash, HiHome, HiMapPin, HiCurrencyDollar, HiClock, HiSquare3Stack3D, HiDocumentText, HiPhoto } from 'react-icons/hi2';
+import { FaBed, FaBath } from 'react-icons/fa';
 
-export default function MyPropertiesPage({ properties }) {
-  console.log(properties, "from my property page ");
-  
+export default function MyPropertiesPage({ properties: initialProperties }) {
+  // 🔄 প্রপস থেকে আসা ডাটাকে লোকাল স্টেটে রাখা হয়েছে যেন UI আপডেট হয়
+  const [properties, setProperties] = useState(initialProperties || []);
   const [loading, setLoading] = useState(true);
 
-  // 🔄 ডেটা আসার পর লোডিং বন্ধ করার জন্য useEffect
+  // 🛠️ এডিট মোডাল এবং ফর্মের জন্য নতুন স্টেটসমূহ (যা আপনার ফর্মে লাগবে)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isImageUploading, setIsImageUploading] = useState(false); // ফর্মের ইমেজ আপলোড স্পিনারের জন্য
+
+  const [formData, setFormData] = useState({
+    title: '', location: '', propertyType: 'Apartment', price: '', rentType: 'Monthly',
+    bedrooms: '', bathrooms: '', size: '', amenities: '', extraFeatures: '',
+    images: '', description: '', ownerName: '', ownerEmail: '', ownerPhone: ''
+  });
+
+  // ডেটা আপডেট বা লোড হলে স্টেট সেট করার জন্য
   useEffect(() => {
-    if (properties) {
+    if (initialProperties) {
+      setProperties(initialProperties);
       setLoading(false);
     }
-  }, [properties]);
+  }, [initialProperties]);
 
-  // 🛠️ ২. এডিট ফাংশন হ্যান্ডলার
-  const handleEditProperty = (propertyId, currentData) => {
-    console.log("Editing Property ID:", propertyId);
-    console.log("Current Data:", currentData);
-    // আপনার PATCH এপিআই বা মডাল লজিক এখানে হবে
+  // 📝 ইনপুট চেঞ্জ হ্যান্ডলার (আপনার ফর্মের ইনপুট ট্র্যাকিংয়ের জন্য)
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // 🗑️ ৩. ডিলিট ফাংশন হ্যান্ডলার
+  // 📸 ইমেজ আপলোড হ্যান্ডলার (আপনার ইমেজের ImgBB লজিক এখানে কাজ করবে)
+  const handleImageUpload = async (e) => {
+    // আপনার ইমেজ আপলোডের মূল কোডটি এখানে থাকবে যা শেষে URL জেনারেট করে:
+    // setFormData(prev => ({ ...prev, images: uploadedUrl }));
+  };
+
+  // 🛠️ ২. এডিট ফাংশন হ্যান্ডলার (আপডেটেড - বাটনে ক্লিক করলে ফর্ম ওপেন হবে)
+  const handleEditProperty = (propertyId, currentData) => {
+    setEditingId(propertyId);
+    setFormData({
+      title: currentData.title || '',
+      location: currentData.location || '',
+      propertyType: currentData.propertyType || 'Apartment',
+      price: currentData.price || '',
+      rentType: currentData.rentType || 'Monthly',
+      bedrooms: currentData.bedrooms || '',
+      bathrooms: currentData.bathrooms || '',
+      size: currentData.size || '',
+      amenities: currentData.amenities || '',
+      extraFeatures: currentData.extraFeatures || '',
+      images: currentData.images || '',
+      description: currentData.description || '',
+      ownerName: currentData.ownerName || '',
+      ownerEmail: currentData.ownerEmail || '',
+      ownerPhone: currentData.ownerPhone || ''
+    });
+    setIsEditModalOpen(true);
+  };
+
+  // 💾 ৩. এডিট ফর্ম সাবমিট হ্যান্ডলার (PATCH API)
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+
+    try {
+      const response = await fetch(`http://localhost:5000/dashboard/owner/${editingId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      });
+      const data = await response.json();
+
+      if (data.modifiedCount > 0) {
+        alert("Property updated successfully!");
+        // পেজ রিফ্রেশ ছাড়াই টেবিল আপডেট করা
+        const updatedList = properties.map(item => item._id === editingId ? { ...item, ...formData } : item);
+        setProperties(updatedList);
+        setIsEditModalOpen(false);
+      } else {
+        alert("No changes were made.");
+        setIsEditModalOpen(false);
+      }
+    } catch (error) {
+      console.error("Error updating property:", error);
+      alert("Something went wrong while updating!");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // 🗑️ ৪. ডিলিট ফাংশন হ্যান্ডলার (আগের মতোই আছে)
   const handleDeleteProperty = async (propertyId) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this property?");
     if (!confirmDelete) return;
 
-    console.log("Deleting Property ID:", propertyId);
-    // আপনার DELETE এপিআই লজিক এখানে হবে
+    try {
+      const response = await fetch(`http://localhost:5000/dashboard/owner/${propertyId}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
+
+      if (data.deletedCount > 0) {
+        alert("Property deleted successfully!");
+        const remaining = properties.filter((item) => item._id !== propertyId);
+        setProperties(remaining);
+      } else {
+        alert("Failed to delete the property.");
+      }
+    } catch (error) {
+      console.error("Error deleting property:", error);
+      alert("Something went wrong while deleting.");
+    }
   };
 
   return (
-    <div className="p-6 w-full mx-auto space-y-6 bg-slate-50/50 min-h-screen">
+    <div className="p-6 w-full mx-auto space-y-6 bg-slate-50/50 min-h-screen relative">
       
       {/* হেডার সেকশন */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -42,12 +130,10 @@ export default function MyPropertiesPage({ properties }) {
         </div>
       </div>
 
-      {/* ─── pure tailwind css table ─── */}
+      {/* ─── pure tailwind css table (বিন্দুমাত্র পরিবর্তন করা হয়নি) ─── */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            
-            {/* টেবিল হেডার */}
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200/80">
                 <th className="font-bold text-xs uppercase tracking-wider text-slate-500 px-6 py-4">Title</th>
@@ -58,8 +144,6 @@ export default function MyPropertiesPage({ properties }) {
                 <th className="font-bold text-xs uppercase tracking-wider text-slate-500 px-6 py-4 text-center">Actions</th>
               </tr>
             </thead>
-            
-            {/* টেবিল বডি */}
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
@@ -76,8 +160,6 @@ export default function MyPropertiesPage({ properties }) {
               ) : (
                 properties.map((item) => (
                   <tr key={item._id} className="hover:bg-slate-50/40 transition-colors">
-                    
-                    {/* টাইটেল এবং প্রোপার্টি ইমেজ */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <Image
@@ -93,23 +175,15 @@ export default function MyPropertiesPage({ properties }) {
                         </div>
                       </div>
                     </td>
-
-                    {/* লোকেশন */}
                     <td className="px-6 py-4 whitespace-nowrap text-xs font-semibold text-slate-600">
                       {item.location}
                     </td>
-
-                    {/* প্রাইস */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-slate-900">
                       ৳{Number(item.price).toLocaleString()}
                     </td>
-
-                    {/* প্রোপার্টি টাইপ */}
                     <td className="px-6 py-4 whitespace-nowrap text-xs font-medium text-slate-500">
                       {item.propertyType}
                     </td>
-
-                    {/* কাস্টম স্ট্যাটাস ব্যাজ */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${
                         item.status === 'Approved' ? 'bg-emerald-50 border-emerald-100 text-emerald-600' :
@@ -119,11 +193,8 @@ export default function MyPropertiesPage({ properties }) {
                         {item.status || 'Pending'}
                       </span>
                     </td>
-
-                    {/* অ্যাকশন বাটনসমূহ */}
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-1.5">
-                        {/* এডিট বাটন */}
                         <button
                           onClick={() => handleEditProperty(item._id, item)}
                           className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -131,8 +202,6 @@ export default function MyPropertiesPage({ properties }) {
                         >
                           <HiPencilSquare className="w-5 h-5" />
                         </button>
-
-                        {/* ডিলিট বাটন */}
                         <button
                           onClick={() => handleDeleteProperty(item._id)}
                           className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
@@ -142,15 +211,169 @@ export default function MyPropertiesPage({ properties }) {
                         </button>
                       </div>
                     </td>
-
                   </tr>
                 ))
               )}
             </tbody>
-
           </table>
         </div>
       </div>
+
+      {/* ─── 🌟 এডিট পপ-আপ ফর্ম (Modal) ─── */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+              <h2 className="text-lg font-black text-slate-800">Edit Property Details</h2>
+              <button type="button" onClick={() => setIsEditModalOpen(false)} className="text-slate-400 hover:text-slate-600 text-sm font-bold">✕ Close</button>
+            </div>
+
+            {/* আপনার হুবহু ফর্মটি এখানে যুক্ত করা হয়েছে */}
+            <form onSubmit={handleFormSubmit} className="p-6 space-y-5">
+              {/* Row 1: Title & Location */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-bold text-slate-500 uppercase">Property Title</label>
+                  <div className="relative flex items-center">
+                    <HiHome className="absolute left-3 text-slate-400 text-base" />
+                    <input type="text" name="title" required value={formData.title} onChange={handleInputChange} placeholder="Luxury Apartment" className="w-full h-10 pl-9 pr-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors" />
+                  </div>
+                </div>
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-bold text-slate-500 uppercase">Location Address</label>
+                  <div className="relative flex items-center">
+                    <HiMapPin className="absolute left-3 text-slate-400 text-base" />
+                    <input type="text" name="location" required value={formData.location} onChange={handleInputChange} placeholder="Street, City, ZIP" className="w-full h-10 pl-9 pr-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 2: Property Type, Rent Price & Cycle */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-bold text-slate-500 uppercase">Property Type</label>
+                  <select name="propertyType" value={formData.propertyType} onChange={handleInputChange} className="w-full h-10 px-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors cursor-pointer">
+                    <option value="Apartment">Apartment</option>
+                    <option value="House">House</option>
+                    <option value="Studio">Studio</option>
+                    <option value="Villa">Villa</option>
+                  </select>
+                </div>
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-bold text-slate-500 uppercase">Rent Price (USD)</label>
+                  <div className="relative flex items-center">
+                    <HiCurrencyDollar className="absolute left-3 text-slate-400 text-base" />
+                    <input type="number" name="price" required value={formData.price} onChange={handleInputChange} placeholder="0.00" className="w-full h-10 pl-9 pr-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors" />
+                  </div>
+                </div>
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-bold text-slate-500 uppercase">Rent Cycle</label>
+                  <div className="relative flex items-center">
+                    <HiClock className="absolute left-3 text-slate-400 text-base pointer-events-none" />
+                    <select name="rentType" value={formData.rentType} onChange={handleInputChange} className="w-full h-10 pl-9 pr-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors cursor-pointer">
+                      <option value="Monthly">Monthly</option>
+                      <option value="Weekly">Weekly</option>
+                      <option value="Daily">Daily</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 3: Specs - Beds, Baths & Size */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-bold text-slate-500 uppercase">Bedrooms</label>
+                  <div className="relative flex items-center">
+                    <FaBed className="absolute left-3 text-slate-400 text-base" />
+                    <input type="number" name="bedrooms" required value={formData.bedrooms} onChange={handleInputChange} placeholder="Beds Count" className="w-full h-10 pl-9 pr-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors" />
+                  </div>
+                </div>
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-bold text-slate-500 uppercase">Bathrooms</label>
+                  <div className="relative flex items-center">
+                    <FaBath className="absolute left-3 text-slate-400 text-sm" />
+                    <input type="number" name="bathrooms" required value={formData.bathrooms} onChange={handleInputChange} placeholder="Baths Count" className="w-full h-10 pl-9 pr-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors" />
+                  </div>
+                </div>
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-bold text-slate-500 uppercase">Size (Sq. Ft.)</label>
+                  <div className="relative flex items-center">
+                    <HiSquare3Stack3D className="absolute left-3 text-slate-400 text-base" />
+                    <input type="number" name="size" required value={formData.size} onChange={handleInputChange} placeholder="Area Size" className="w-full h-10 pl-9 pr-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 4: Amenities & Extra Features */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-bold text-slate-500 uppercase">Amenities</label>
+                  <input type="text" name="amenities" required value={formData.amenities} onChange={handleInputChange} placeholder="WiFi, Gym, Pool (Comma separated)" className="w-full h-10 px-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors" />
+                </div>
+                <div className="space-y-1 text-left">
+                  <label className="text-xs font-bold text-slate-500 uppercase">Extra Features</label>
+                  <input type="text" name="extraFeatures" value={formData.extraFeatures} onChange={handleInputChange} placeholder="24/7 Security, Parking" className="w-full h-10 px-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors" />
+                </div>
+              </div>
+
+              {/* 👉 [Row 5]: আপনার সেই ইমেজ আপলোড ও প্রিভিউ সেকশন */}
+              <div className="space-y-1 text-left">
+                <label className="text-xs font-bold text-slate-500 uppercase">Property Image Upload</label>
+                <div className="flex items-center gap-4 border border-dashed border-slate-200 rounded-lg p-3 bg-slate-50/50">
+                  <div className="relative flex items-center bg-white border border-slate-200 rounded-md px-3 py-1.5 cursor-pointer shadow-sm hover:bg-slate-50 transition-colors">
+                    <HiPhoto className="text-slate-500 mr-2 text-base" />
+                    <span className="text-xs font-bold text-slate-600">Choose Image File</span>
+                    <input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                  </div>
+                  <div className="flex-1 text-right">
+                    {isImageUploading && (
+                      <span className="text-xs font-semibold text-blue-600 animate-pulse">Uploading to ImgBB framework...</span>
+                    )}
+                    {!isImageUploading && formData.images && (
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="text-xs text-emerald-600 font-bold">✓ Ready</span>
+                        <Image width={50} height={50} src={formData.images} alt="Preview" className="w-8 h-8 rounded object-cover border border-slate-200" />
+                      </div>
+                    )}
+                    {!isImageUploading && !formData.images && (
+                      <span className="text-xs text-slate-400">No file uploaded yet</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 6: Description */}
+              <div className="space-y-1 text-left">
+                <label className="text-xs font-bold text-slate-500 uppercase">Description</label>
+                <div className="relative flex items-start">
+                  <HiDocumentText className="absolute left-3 top-2.5 text-slate-400 text-base" />
+                  <textarea name="description" required rows={2} value={formData.description} onChange={handleInputChange} placeholder="Describe details regarding nearby infrastructure, facilities..." className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors resize-none" />
+                </div>
+              </div>
+
+              {/* Row 7: Owner Credentials */}
+              <div className="bg-slate-50/50 p-4 border border-slate-100 rounded-lg space-y-3">
+                <span className="block text-xs font-bold text-slate-700 uppercase text-left tracking-wider">Owner Credentials (Auto-Populated)</span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <input type="text" name="ownerName" readOnly value={formData.ownerName} placeholder="Loading Name..." className="h-9 px-3 bg-slate-100 border border-slate-200 rounded-md text-xs font-medium text-slate-500 outline-none cursor-not-allowed" />
+                  <input type="email" name="ownerEmail" readOnly value={formData.ownerEmail} placeholder="Loading Email..." className="h-9 px-3 bg-slate-100 border border-slate-200 rounded-md text-xs font-medium text-slate-500 outline-none cursor-not-allowed" />
+                  <input type="tel" name="ownerPhone" required value={formData.ownerPhone} onChange={handleInputChange} placeholder="Contact Phone Number" className="h-9 px-3 bg-white border border-slate-200 rounded-md text-xs font-medium outline-none focus:border-blue-600 transition-colors" />
+                </div>
+              </div>
+
+              {/* Footer Buttons */}
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-4 h-9 border border-slate-200 text-slate-600 font-bold text-xs rounded-lg hover:bg-slate-50 transition-all transform active:scale-95">
+                  Cancel
+                </button>
+                <button type="submit" disabled={isSaving || isImageUploading} className="px-6 h-9 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs tracking-wide shadow-md rounded-lg transition-all transform active:scale-95 disabled:opacity-50">
+                  {isSaving ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );

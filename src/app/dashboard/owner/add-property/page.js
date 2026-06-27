@@ -17,7 +17,7 @@ export default function AddPropertyPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isImageUploading, setIsImageUploading] = useState(false);
 
-  // 👉 Better-Auth সেশন হুক থেকে কারেন্ট ওনারের ডেটা নেওয়া হচ্ছে
+  // 👉 Better-Auth সেশন হুক থেকে কারেন্ট ওনারের ডেটা নেওয়া হচ্ছে
   const { data: session } = authClient.useSession();
 
   const [formData, setFormData] = useState({
@@ -39,7 +39,7 @@ export default function AddPropertyPage() {
     ownerPhone: ""
   });
 
-  // সেশন লোড হওয়ার সাথে সাথে ওনারের নাম ও ইমেইল স্টেট-এ সেট করে দেওয়া
+  // সেশন লোড হওয়ার সাথে সাথে ওনারের নাম ও ইমেইল স্টেট-এ সেট করে দেওয়া
   useEffect(() => {
     if (session?.user) {
       setFormData((prev) => ({
@@ -103,8 +103,10 @@ export default function AddPropertyPage() {
     try {
       console.log("Ready to push payload to backend DB:", formData);
 
-      const payload = await AddProperty(formData)
-      e.target.reset()
+      const payload = await AddProperty(formData);
+      e.target.reset();
+      
+      // 💡 রিসেট করার সময় সেশন থেকে ওনারের নাম ও ইমেইল পুনরায় ধরে রাখা হয়েছে
       setFormData({
         title: "",
         description: "",
@@ -119,10 +121,11 @@ export default function AddPropertyPage() {
         images: "",
         extraFeatures: "",
         status: "Pending",
-        ownerName: "",
-        ownerEmail: "",
+        ownerName: session?.user?.name || "",
+        ownerEmail: session?.user?.email || "",
         ownerPhone: ""
-      })
+      });
+      
       setIsLoading(false);
       alert("Property added successfully!");
     } catch (error) {
@@ -132,7 +135,7 @@ export default function AddPropertyPage() {
   };
 
   return (
-    <div className="min-h-screen w-full  bg-slate-50 py-6 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+    <div className="min-h-screen w-full bg-slate-50 py-6 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
       <div className="w-full max-w-3xl bg-white shadow-lg rounded-xl border border-slate-100 overflow-hidden">
 
         {/* Compact Header Banner */}
@@ -314,7 +317,7 @@ export default function AddPropertyPage() {
             </div>
           </div>
 
-          {/* 👉 [Updated Row 5]: REAL FILE UPLOAD FOR IMGBB CONVERSION */}
+          {/* Row 5: Property Image Upload */}
           <div className="space-y-1 text-left">
             <label className="text-xs font-bold text-slate-500 uppercase">Property Image Upload</label>
             <div className="flex items-center gap-4 border border-dashed border-slate-200 rounded-lg p-3 bg-slate-50/50">
@@ -365,7 +368,7 @@ export default function AddPropertyPage() {
             </div>
           </div>
 
-          {/* 👉 [Updated Row 7]: Session Protected Owner Contact Matrix */}
+          {/* Row 7: Session Protected Owner Contact Matrix */}
           <div className="bg-slate-50/50 p-4 border border-slate-100 rounded-lg space-y-3">
             <span className="block text-xs font-bold text-slate-700 uppercase text-left tracking-wider">Owner Credentials (Auto-Populated)</span>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -373,16 +376,14 @@ export default function AddPropertyPage() {
                 type="text"
                 name="ownerName"
                 readOnly
-                value={formData.ownerName}
-                placeholder="Loading Name..."
+                value={formData.ownerName || "Loading Name..."}
                 className="h-9 px-3 bg-slate-100 border border-slate-200 rounded-md text-xs font-medium text-slate-500 outline-none cursor-not-allowed"
               />
               <input
                 type="email"
                 name="ownerEmail"
                 readOnly
-                value={formData.ownerEmail}
-                placeholder="Loading Email..."
+                value={formData.ownerEmail || "Loading Email..."}
                 className="h-9 px-3 bg-slate-100 border border-slate-200 rounded-md text-xs font-medium text-slate-500 outline-none cursor-not-allowed"
               />
               <input
