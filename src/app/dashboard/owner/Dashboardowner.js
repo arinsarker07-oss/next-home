@@ -19,9 +19,11 @@ import ProfilePage from "./profile/page";
 import MyPropertiesPage from "./myProperty/myProperty";
 import BookingRequestPage from "./booking-request/page";
 
-export default function OwnerDashboardMain({ ownerProperty ,BookingData }) {
-    console.log(ownerProperty,"home");
-    
+export default function OwnerDashboardMain({ ownerProperty, BookingData }) {
+    console.log("BookingData type:", typeof BookingData, BookingData);
+    console.log(ownerProperty, " ownr");
+
+
     const [activeTab, setActiveTab] = useState("overview");
 
     // Summary Metrics data mimicking successful transactional entries
@@ -29,7 +31,14 @@ export default function OwnerDashboardMain({ ownerProperty ,BookingData }) {
         {
             id: 1,
             title: "Total Earnings",
-            value: "৳125,000",
+            value: Array.isArray(BookingData) && Array.isArray(ownerProperty)
+                ? BookingData
+                    .filter(booking =>
+                        booking.bookingStatus === "accepted" &&
+                        ownerProperty.some(property => property._id === booking.propertyId)
+                    )
+                    .reduce((sum, booking) => sum + Number(booking.price || 0), 0)
+                : 0,
             icon: <HiOutlineBanknotes className="w-6 h-6 text-emerald-600" />,
             bg: "bg-emerald-50/40 border-emerald-100",
             description: "Sum of all successful payments"
@@ -37,7 +46,7 @@ export default function OwnerDashboardMain({ ownerProperty ,BookingData }) {
         {
             id: 2,
             title: "Total Properties",
-            value: "12",
+            value: ownerProperty.length,
             icon: <HiOutlineHomeModern className="w-6 h-6 text-blue-600" />,
             bg: "bg-blue-50/40 border-blue-100",
             description: "Properties created by you"
@@ -45,7 +54,12 @@ export default function OwnerDashboardMain({ ownerProperty ,BookingData }) {
         {
             id: 3,
             title: "Total Bookings",
-            value: "58",
+            value: Array.isArray(BookingData) && Array.isArray(ownerProperty)
+                ? BookingData.filter(booking =>
+                    booking.bookingStatus === "accepted" &&
+                    ownerProperty.some(property => property._id === booking.propertyId)
+                ).length
+                : 0,
             icon: <HiOutlineCalendarDays className="w-6 h-6 text-purple-600" />,
             bg: "bg-purple-50/40 border-purple-100",
             description: "Confirmed rental slots"
@@ -53,20 +67,27 @@ export default function OwnerDashboardMain({ ownerProperty ,BookingData }) {
     ];
 
     // Recharts 12 Months aggregated statistical simulation matrix
-    const monthlyEarningsData = [
-        { month: "Jan", earnings: 15000 },
-        { month: "Feb", earnings: 18000 },
-        { month: "Mar", earnings: 22000 },
-        { month: "Apr", earnings: 25000 },
-        { month: "May", earnings: 21000 },
-        { month: "Jun", earnings: 30000 },
-        { month: "Jul", earnings: 34000 },
-        { month: "Aug", earnings: 28000 },
-        { month: "Sep", earnings: 40000 },
-        { month: "Oct", earnings: 37000 },
-        { month: "Nov", earnings: 45000 },
-        { month: "Dec", earnings: 125000 }
-    ];
+    const monthsLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    // ডাইনামিক ডেটা ক্যালকুলেশন
+    const dynamicChartData = monthsLabels.map((m) => ({ month: m, earnings: 0 }));
+
+  if (Array.isArray(BookingData) && Array.isArray(ownerProperty)) {
+    BookingData.forEach((booking) => {
+        if (
+            booking.bookingStatus === "accepted" && 
+            booking.createdAt &&
+            ownerProperty.some(property => property._id === booking.propertyId)
+        ) {
+            const date = new Date(booking.createdAt);
+            const monthIndex = date.getMonth(); // ০ (Jan) থেকে ১১ (Dec) পর্যন্ত দেয়
+            
+            if (monthIndex >= 0 && monthIndex <= 11) {
+                dynamicChartData[monthIndex].earnings += Number(booking.price || 0);
+            }
+        }
+    });
+}
 
     return (
         // Outer Shell Layout: Flex matrix grouping Aside Navigation and Content Wrapper
@@ -237,9 +258,9 @@ export default function OwnerDashboardMain({ ownerProperty ,BookingData }) {
 
                                 {/* Graphical Canvas Render Wrapper */}
                                 <div className="w-full h-80 pt-2 text-xs">
-                                    <ResponsiveContainer width="100%" h="100%">
+                                    <ResponsiveContainer width="100%" height="100%">
                                         <AreaChart
-                                            data={monthlyEarningsData}
+                                            data={dynamicChartData} // এখানে ডাইনামিক ডেটা ব্যবহার করা হয়েছে
                                             margin={{ top: 10, right: 5, left: -20, bottom: 0 }}
                                         >
                                             <defs>
@@ -296,7 +317,7 @@ export default function OwnerDashboardMain({ ownerProperty ,BookingData }) {
                 <MyPropertiesPage properties={ownerProperty}></MyPropertiesPage>
             )}
             {activeTab === "requests" && (
-               <BookingRequestPage BookingData={BookingData} ownerProperty={ownerProperty} ></BookingRequestPage>
+                <BookingRequestPage BookingData={BookingData} ownerProperty={ownerProperty} ></BookingRequestPage>
             )}
             {activeTab === "profile" && (
                 <ProfilePage></ProfilePage>
