@@ -18,3 +18,7 @@ export const getAllProperty = async ({ search = '', type = '', sort = '' }) => {
 export const AllProperty = async()=>{
     return serverFetch("/properties")
 }
+
+export const  TotalProperty = async()=> {
+    return serverFetch("/all/property")
+}
