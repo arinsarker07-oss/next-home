@@ -144,9 +144,9 @@ export default function AddPropertyPage() {
             <h2 className="text-xl font-bold tracking-tight">Add New Property</h2>
             <p className="text-xs text-blue-100">Fill in the fields to list your property asset.</p>
           </div>
-          <span className="px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full uppercase tracking-wide">
+          {/* <span className="px-3 py-1 bg-white/20 text-white text-xs font-bold rounded-full uppercase tracking-wide">
             Status: {formData.status}
-          </span>
+          </span> */}
         </div>
 
         {/* Optimized Form Grid */}

@@ -119,7 +119,8 @@ export default function PropertyDetailsPage({ property }) {
             propertyName: property?.title,
             propertyLocation: property?.location,
             propertyImage: property?.images,
-            paymentStatus: "unpaid"
+            paymentStatus: "unpaid",
+            bookingStatus :"pending"
         };
 
         try {

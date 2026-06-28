@@ -20,18 +20,19 @@ import {
 } from "react-icons/hi2";
 import Image from "next/image";
 import { data } from "framer-motion/client";
-import { UnfavoriteProperty } from "@/lib/action/favouriteProperty";
+import { BookedProperty, UnfavoriteProperty } from "@/lib/action/favouriteProperty";
 
-export default function TenantDashboardMain({ UserBooking ,FavoriteProperty }) {
+export default function TenantDashboardMain({ UserBooking, FavoriteProperty }) {
     const [activeTab, setActiveTab] = useState("overview");
     const router = useRouter();
     const { data: session, isPending, error } = useSession();
     const user = session?.user
     // console.log(user);
     // console.log(UserBooking);
-    
 
-    const totalAmount = UserBooking?.reduce((sum, item) => sum + (item.price || 0), 0);
+
+    // Convert item.price to a number before adding to the sum
+    const totalAmount = UserBooking?.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
     if (isPending) {
         return (
             <div className="w-full min-h-[70vh] flex flex-col items-center justify-center gap-3">
@@ -62,11 +63,11 @@ export default function TenantDashboardMain({ UserBooking ,FavoriteProperty }) {
         rent: item.price,
         date: item.moveInDate,
         paymentStatus: item.paymentStatus,
-        status: "pending",
+        status: item.bookingStatus,
 
     })) || [];
-   console.log(recentBookings,"recent booking");
-   
+    console.log(recentBookings, "recent booking");
+
     const favoriteItems = FavoriteProperty?.map((item) => ({
         id: item._id,
         propertyId: item.propertyId,
@@ -75,32 +76,51 @@ export default function TenantDashboardMain({ UserBooking ,FavoriteProperty }) {
         image: item.propertyImage,
         rent: item.price,
         date: item.moveInDate,
-        paymentStatus: "Paid",
-        status: "Pending",
 
     })) || [];
 
-const handledelete = async (propertyId) => { // 🌟 parameter নাম propertyId করো
-    const tenantId = user?._id || user?.id;
-    console.log("Property ID:", propertyId, "Tenant ID:", tenantId);
-    
-    if (!propertyId || !tenantId) return;
+    const handledelete = async (propertyId) => { // 🌟 parameter নাম propertyId করো
+        const tenantId = user?._id || user?.id;
+        console.log("Property ID:", propertyId, "Tenant ID:", tenantId);
 
-    try {
-        // ১. ডাটাবেজ থেকে রিমুভ হবে
-        await UnfavoriteProperty(propertyId, tenantId);
+        if (!propertyId || !tenantId) return;
 
-        // ২. লোকাল স্টোরেজ ক্লিন
-        const localStorageKey = `favorite_${tenantId}_${propertyId}`;
-        localStorage.removeItem(localStorageKey);
+        try {
+            // ১. ডাটাবেজ থেকে রিমুভ হবে
+            await UnfavoriteProperty(propertyId, tenantId);
 
-        alert("Removed from Favorites successfully!");
-        router.refresh(); 
-        
-    } catch (error) {
-        console.error("Error deleting favorite item:", error);
-    }
-};
+            // ২. লোকাল স্টোরেজ ক্লিন
+            const localStorageKey = `favorite_${tenantId}_${propertyId}`;
+            localStorage.removeItem(localStorageKey);
+
+            alert("Removed from Favorites successfully!");
+            router.refresh();
+
+        } catch (error) {
+            console.error("Error deleting favorite item:", error);
+        }
+    };
+    const handleDeleteBookedProperty = async (propertyId) => {
+        const tenantId = user?._id || user?.id;
+        console.log("Property ID:", propertyId, "Tenant ID:", tenantId);
+
+        if (!propertyId || !tenantId) return;
+
+        try {
+            // ১. ডাটাবেজ থেকে রিমুভ হবে
+            await BookedProperty(propertyId, tenantId);
+
+            // ২. লোকাল স্টোরেজ ক্লিন
+            const localStorageKey = `favorite_${tenantId}_${propertyId}`;
+            localStorage.removeItem(localStorageKey);
+
+            alert("Removed Property from your booking data!");
+            router.refresh();
+
+        } catch (error) {
+            console.error("Error deleting booked item:", error);
+        }
+    };
 
     return (
         <div className="w-full min-h-screen bg-[#f8fafc] text-slate-800 flex overflow-x-hidden">
@@ -262,7 +282,7 @@ const handledelete = async (propertyId) => { // 🌟 parameter নাম propert
                                             <td className="p-4 text-sm font-semibold text-slate-600">{item.date}</td>
                                             <td className="p-4 text-sm font-bold text-slate-800">{item.rent}</td>
                                             <td className="p-4">
-                                                <Chip className="capitalize font-bold text-[10px] px-2" color={item.status === "Approved" ? "success" : "warning"} size="sm" variant="flat">
+                                                <Chip className="font-bold text-white text-[10px]" color={item.status === "accepted" ? "success" : "danger"} variant="primary">
                                                     {item.status}
                                                 </Chip>
                                             </td>
@@ -291,10 +311,11 @@ const handledelete = async (propertyId) => { // 🌟 parameter নাম propert
                                     <th className="p-4 text-xs font-bold text-slate-500 uppercase">Amount Paid</th>
                                     <th className="p-4 text-xs font-bold text-slate-500 uppercase">Payment Status</th>
                                     <th className="p-4 text-xs font-bold text-slate-500 uppercase">Booking Status</th>
+                                    <th className="p-4 text-xs font-bold text-slate-500 uppercase text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {recentBookings.map((item) => (  
+                                {recentBookings.map((item) => (
                                     <tr key={item.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-all">
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
@@ -308,14 +329,19 @@ const handledelete = async (propertyId) => { // 🌟 parameter নাম propert
                                         <td className="p-4 text-sm font-semibold text-slate-600">{item.date}</td>
                                         <td className="p-4 text-sm font-bold text-slate-800">{item.rent}</td>
                                         <td className="p-4">
-                                            <Chip className="font-bold text-[10px]" color={item.paymentStatus === "paid" ? "success" : "danger"}  variant="dot">
+                                            <Chip className="font-bold text-[10px]" color={item.paymentStatus === "paid" ? "success" : "danger"} variant="dot">
                                                 {item.paymentStatus}
                                             </Chip>
                                         </td>
                                         <td className="p-4">
-                                            <Chip className="font-bold text-[10px]" color={item.status === "Approved" ? "success" : "warning"} variant="flat">
+                                            <Chip className="font-bold text-white text-[10px]" color={item.status === "accepted" ? "success" : "danger"} variant="primary">
                                                 {item.status}
                                             </Chip>
+                                        </td>
+                                        <td className="p-4 text-right">
+                                            <button onClick={() => handleDeleteBookedProperty(item.propertyId)} className="p-2 cursor-pointer text-rose-500 hover:bg-rose-50 rounded-xl transition-all" aria-label="Remove item">
+                                                <HiOutlineTrash className="w-4 h-4" />
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
