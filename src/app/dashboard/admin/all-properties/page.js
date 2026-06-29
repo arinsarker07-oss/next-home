@@ -1,5 +1,6 @@
 "use client"; // Next.js App Router-এ useState ব্যবহারের জন্য এটি নিশ্চিত করুন
 
+import { authHeader } from "@/lib/core/server";
 import { useState } from "react";
 import { HiChatBubbleLeftEllipsis } from "react-icons/hi2";
 
@@ -21,6 +22,7 @@ export default function AllPropertiesPage({ allproperty }) {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          ...await authHeader()
         },
         body: JSON.stringify({ status, feedback: msg }),
       });
