@@ -13,8 +13,8 @@ export async function POST(req) {
         // ১. ফর্ম থেকে পাঠানো ডাইনামিক ডেটা রিড করা
         const formData = await req.formData();
         const price = formData.get('price'); // প্রোপার্টির প্রাইস
-        const propertyName = formData.get('propertyName'); // প্রোপার্টির নাম
-        const PaymentStatus = formData.get('paymentStatus');
+        const propertyName = formData.get('propertyName'); 
+        const ownerName = formData.get('ownerName'); 
         const userEmail = formData.get("UserEmail")
 
 
@@ -41,7 +41,9 @@ export async function POST(req) {
 
             metadata: {
                 tenantId: formData.get('tenantId'),     
-                propertyId: formData.get('propertyId')
+                propertyId: formData.get('propertyId'),
+                propertyName: propertyName,
+                ownerName: ownerName || "M. R. Rahman"
             },
         });
 

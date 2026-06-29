@@ -1,9 +1,28 @@
-
 // Transactions Ledger Component
-export default  function TransactionsPage() {
-  const txns = [
-    { id: 'txn_9S82K1LL', title: 'Premium Suite Room', tenant: 'Asif Khan', owner: 'M. R. Rahman', amount: 30000, date: '2026-06-25' }
-  ];
+'use client';
+import React, { useEffect, useState } from 'react';
+
+export default function TransactionsPage() {
+  const [txns, setTxns] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // 🔄 এক্সপ্রেস ব্যাকএন্ড থেকে আগের সব ট্রানজেকশন ডেটা লোড করা হচ্ছে
+    fetch('http://localhost:5000/api/transactions')
+      .then((res) => res.json())
+      .then((data) => {
+        // যদি ডেটা অ্যারে আকারে আসে তবে সেটে রাখা হচ্ছে
+        if (Array.isArray(data)) {
+          setTxns(data);
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error loading transactions:", err);
+        setLoading(false);
+      });
+  }, []);
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <table className="w-full text-left border-collapse">
@@ -16,16 +35,36 @@ export default  function TransactionsPage() {
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 text-sm">
-          {txns.map(t => (
-            <tr key={t.id}>
-              <td className="px-6 py-4 text-xs font-mono font-bold text-slate-600 select-all">{t.id}</td>
-              <td className="px-6 py-4 font-bold text-slate-800">{t.title}</td>
-              <td className="px-6 py-4 text-xs text-slate-600">
-                <span className="font-bold text-slate-800">{t.tenant}</span> → {t.owner}
+          {loading ? (
+            <tr>
+              <td colSpan="4" className="text-center py-8 text-slate-400 text-xs">
+                Loading transactions...
               </td>
-              <td className="px-6 py-4 text-sm font-black text-emerald-600">৳{t.amount}</td>
             </tr>
-          ))}
+          ) : txns.length === 0 ? (
+            <tr>
+              <td colSpan="4" className="text-center py-8 text-slate-400 text-xs">
+                No transactions found. Complete a payment to see it here!
+              </td>
+            </tr>
+          ) : (
+            txns.map((t) => (
+              <tr key={t._id || t.transactionId}>
+                <td className="px-6 py-4 text-xs font-mono font-bold text-slate-600 select-all">
+                  {t.transactionId}
+                </td>
+                <td className="px-6 py-4 font-bold text-slate-800">
+                  {t.propertyName}
+                </td>
+                <td className="px-6 py-4 text-xs text-slate-600">
+                  <span className="font-bold text-slate-800">{t.tenantName}</span> → {t.ownerName}
+                </td>
+                <td className="px-6 py-4 text-sm font-black text-emerald-600">
+                  ৳{t.amount}
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>

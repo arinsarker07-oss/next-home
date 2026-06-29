@@ -9,11 +9,11 @@ export default function MyPropertiesPage({ properties: initialProperties }) {
   const [properties, setProperties] = useState(initialProperties || []);
   const [loading, setLoading] = useState(true);
 
-  // 🛠️ এডিট মোডাল এবং ফর্মের জন্য নতুন স্টেটসমূহ (যা আপনার ফর্মে লাগবে)
+  // 🛠️ এডিট মোডাল এবং ফর্মের জন্য নতুন স্টেটসমূহ
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [isImageUploading, setIsImageUploading] = useState(false); // ফর্মের ইমেজ আপলোড স্পিনারের জন্য
+  const [isImageUploading, setIsImageUploading] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '', location: '', propertyType: 'Apartment', price: '', rentType: 'Monthly',
@@ -29,19 +29,18 @@ export default function MyPropertiesPage({ properties: initialProperties }) {
     }
   }, [initialProperties]);
 
-  // 📝 ইনপুট চেঞ্জ হ্যান্ডলার (আপনার ফর্মের ইনপুট ট্র্যাকিংয়ের জন্য)
+  // 📝 ইনপুট চেঞ্জ হ্যান্ডলার
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // 📸 ইমেজ আপলোড হ্যান্ডলার (আপনার ইমেজের ImgBB লজিক এখানে কাজ করবে)
+  // 📸 ইমেজ আপলোড হ্যান্ডলার
   const handleImageUpload = async (e) => {
-    // আপনার ইমেজ আপলোডের মূল কোডটি এখানে থাকবে যা শেষে URL জেনারেট করে:
-    // setFormData(prev => ({ ...prev, images: uploadedUrl }));
+    // ইমেজ আপলোডের লজিক এখানে থাকবে
   };
 
-  // 🛠️ ২. এডিট ফাংশন হ্যান্ডলার (আপডেটেড - বাটনে ক্লিক করলে ফর্ম ওপেন হবে)
+  // 🛠️ এডিট ফাংশন হ্যান্ডলার
   const handleEditProperty = (propertyId, currentData) => {
     setEditingId(propertyId);
     setFormData({
@@ -64,7 +63,7 @@ export default function MyPropertiesPage({ properties: initialProperties }) {
     setIsEditModalOpen(true);
   };
 
-  // 💾 ৩. এডিট ফর্ম সাবমিট হ্যান্ডলার (PATCH API)
+  // 💾 এডিট ফর্ম সাবমিট হ্যান্ডলার (PATCH API)
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setIsSaving(true);
@@ -79,7 +78,6 @@ export default function MyPropertiesPage({ properties: initialProperties }) {
 
       if (data.modifiedCount > 0) {
         alert("Property updated successfully!");
-        // পেজ রিফ্রেশ ছাড়াই টেবিল আপডেট করা
         const updatedList = properties.map(item => item._id === editingId ? { ...item, ...formData } : item);
         setProperties(updatedList);
         setIsEditModalOpen(false);
@@ -95,7 +93,7 @@ export default function MyPropertiesPage({ properties: initialProperties }) {
     }
   };
 
-  // 🗑️ ৪. ডিলিট ফাংশন হ্যান্ডলার (আগের মতোই আছে)
+  // 🗑️ ডিলিট ফাংশন হ্যান্ডলার
   const handleDeleteProperty = async (propertyId) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this property?");
     if (!confirmDelete) return;
@@ -130,7 +128,7 @@ export default function MyPropertiesPage({ properties: initialProperties }) {
         </div>
       </div>
 
-      {/* ─── pure tailwind css table (বিন্দুমাত্র পরিবর্তন করা হয়নি) ─── */}
+      {/* ─── pure tailwind css table ─── */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
@@ -160,7 +158,9 @@ export default function MyPropertiesPage({ properties: initialProperties }) {
               ) : (
                 properties.map((item) => (
                   <tr key={item._id} className="hover:bg-slate-50/40 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    
+                    {/* Title Column + Clean Inline Feedback Box */}
+                    <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <Image
                           src={item.images || 'https://i.ibb.co.com/placeholder.png'} 
@@ -169,12 +169,20 @@ export default function MyPropertiesPage({ properties: initialProperties }) {
                           height={44}
                           className="w-11 h-11 object-cover rounded-xl border border-slate-200/60"
                         />
-                        <div>
-                          <div className="font-bold text-slate-800 text-sm">{item.title}</div>
-                          <div className="text-[11px] font-medium text-slate-400 capitalize">{item.rentType || "Monthly"}</div>
+                        <div className="flex flex-col items-start">
+                          <div className="font-bold text-slate-800 text-sm capitalize">{item.title}</div>
+                          <div className="text-[11px] font-medium text-slate-400 capitalize mb-1">{item.rentType || "Monthly"}</div>
+                          
+                          {/* 🌟 টাইটেলের নিচে চমৎকার রিজেকশন নোটিশ */}
+                          {item.status?.toLowerCase() === 'rejected' && item.feedback && (
+                            <div className="inline-flex text-[11px] text-rose-600 font-medium bg-rose-50/60 border border-rose-100/50 px-2 py-0.5 rounded-md mt-0.5 max-w-[220px] whitespace-normal">
+                              <span className="font-bold text-rose-700 mr-1">Reason:</span> {item.feedback}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </td>
+                    
                     <td className="px-6 py-4 whitespace-nowrap text-xs font-semibold text-slate-600">
                       {item.location}
                     </td>
@@ -184,6 +192,8 @@ export default function MyPropertiesPage({ properties: initialProperties }) {
                     <td className="px-6 py-4 whitespace-nowrap text-xs font-medium text-slate-500">
                       {item.propertyType}
                     </td>
+                    
+                    {/* Status Column */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${
                         item.status === 'Approved' ? 'bg-emerald-50 border-emerald-100 text-emerald-600' :
@@ -193,6 +203,7 @@ export default function MyPropertiesPage({ properties: initialProperties }) {
                         {item.status || 'Pending'}
                       </span>
                     </td>
+                    
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-1.5">
                         <button
@@ -228,9 +239,7 @@ export default function MyPropertiesPage({ properties: initialProperties }) {
               <button type="button" onClick={() => setIsEditModalOpen(false)} className="text-slate-400 hover:text-slate-600 text-sm font-bold">✕ Close</button>
             </div>
 
-            {/* আপনার হুবহু ফর্মটি এখানে যুক্ত করা হয়েছে */}
             <form onSubmit={handleFormSubmit} className="p-6 space-y-5">
-              {/* Row 1: Title & Location */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1 text-left">
                   <label className="text-xs font-bold text-slate-500 uppercase">Property Title</label>
@@ -248,7 +257,6 @@ export default function MyPropertiesPage({ properties: initialProperties }) {
                 </div>
               </div>
 
-              {/* Row 2: Property Type, Rent Price & Cycle */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-1 text-left">
                   <label className="text-xs font-bold text-slate-500 uppercase">Property Type</label>
@@ -279,7 +287,6 @@ export default function MyPropertiesPage({ properties: initialProperties }) {
                 </div>
               </div>
 
-              {/* Row 3: Specs - Beds, Baths & Size */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-1 text-left">
                   <label className="text-xs font-bold text-slate-500 uppercase">Bedrooms</label>
@@ -304,11 +311,10 @@ export default function MyPropertiesPage({ properties: initialProperties }) {
                 </div>
               </div>
 
-              {/* Row 4: Amenities & Extra Features */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1 text-left">
                   <label className="text-xs font-bold text-slate-500 uppercase">Amenities</label>
-                  <input type="text" name="amenities" required value={formData.amenities} onChange={handleInputChange} placeholder="WiFi, Gym, Pool (Comma separated)" className="w-full h-10 px-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors" />
+                  <input type="text" name="amenities" required value={formData.amenities} onChange={handleInputChange} placeholder="WiFi, Gym, Pool" className="w-full h-10 px-3 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors" />
                 </div>
                 <div className="space-y-1 text-left">
                   <label className="text-xs font-bold text-slate-500 uppercase">Extra Features</label>
@@ -316,7 +322,6 @@ export default function MyPropertiesPage({ properties: initialProperties }) {
                 </div>
               </div>
 
-              {/* 👉 [Row 5]: আপনার সেই ইমেজ আপলোড ও প্রিভিউ সেকশন */}
               <div className="space-y-1 text-left">
                 <label className="text-xs font-bold text-slate-500 uppercase">Property Image Upload</label>
                 <div className="flex items-center gap-4 border border-dashed border-slate-200 rounded-lg p-3 bg-slate-50/50">
@@ -326,47 +331,36 @@ export default function MyPropertiesPage({ properties: initialProperties }) {
                     <input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                   </div>
                   <div className="flex-1 text-right">
-                    {isImageUploading && (
-                      <span className="text-xs font-semibold text-blue-600 animate-pulse">Uploading to ImgBB framework...</span>
-                    )}
                     {!isImageUploading && formData.images && (
                       <div className="flex items-center justify-end gap-2">
                         <span className="text-xs text-emerald-600 font-bold">✓ Ready</span>
                         <Image width={50} height={50} src={formData.images} alt="Preview" className="w-8 h-8 rounded object-cover border border-slate-200" />
                       </div>
                     )}
-                    {!isImageUploading && !formData.images && (
-                      <span className="text-xs text-slate-400">No file uploaded yet</span>
-                    )}
                   </div>
                 </div>
               </div>
 
-              {/* Row 6: Description */}
               <div className="space-y-1 text-left">
                 <label className="text-xs font-bold text-slate-500 uppercase">Description</label>
                 <div className="relative flex items-start">
                   <HiDocumentText className="absolute left-3 top-2.5 text-slate-400 text-base" />
-                  <textarea name="description" required rows={2} value={formData.description} onChange={handleInputChange} placeholder="Describe details regarding nearby infrastructure, facilities..." className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors resize-none" />
+                  <textarea name="description" required rows={2} value={formData.description} onChange={handleInputChange} placeholder="Describe details..." className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-600 transition-colors resize-none" />
                 </div>
               </div>
 
-              {/* Row 7: Owner Credentials */}
               <div className="bg-slate-50/50 p-4 border border-slate-100 rounded-lg space-y-3">
-                <span className="block text-xs font-bold text-slate-700 uppercase text-left tracking-wider">Owner Credentials (Auto-Populated)</span>
+                <span className="block text-xs font-bold text-slate-700 uppercase text-left tracking-wider">Owner Credentials</span>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <input type="text" name="ownerName" readOnly value={formData.ownerName} placeholder="Loading Name..." className="h-9 px-3 bg-slate-100 border border-slate-200 rounded-md text-xs font-medium text-slate-500 outline-none cursor-not-allowed" />
-                  <input type="email" name="ownerEmail" readOnly value={formData.ownerEmail} placeholder="Loading Email..." className="h-9 px-3 bg-slate-100 border border-slate-200 rounded-md text-xs font-medium text-slate-500 outline-none cursor-not-allowed" />
-                  <input type="tel" name="ownerPhone" required value={formData.ownerPhone} onChange={handleInputChange} placeholder="Contact Phone Number" className="h-9 px-3 bg-white border border-slate-200 rounded-md text-xs font-medium outline-none focus:border-blue-600 transition-colors" />
+                  <input type="text" name="ownerName" readOnly value={formData.ownerName} className="h-9 px-3 bg-slate-100 border border-slate-200 rounded-md text-xs font-medium text-slate-500 outline-none cursor-not-allowed" />
+                  <input type="email" name="ownerEmail" readOnly value={formData.ownerEmail} className="h-9 px-3 bg-slate-100 border border-slate-200 rounded-md text-xs font-medium text-slate-500 outline-none cursor-not-allowed" />
+                  <input type="tel" name="ownerPhone" required value={formData.ownerPhone} onChange={handleInputChange} placeholder="Phone" className="h-9 px-3 bg-white border border-slate-200 rounded-md text-xs font-medium outline-none focus:border-blue-600 transition-colors" />
                 </div>
               </div>
 
-              {/* Footer Buttons */}
               <div className="flex items-center justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-4 h-9 border border-slate-200 text-slate-600 font-bold text-xs rounded-lg hover:bg-slate-50 transition-all transform active:scale-95">
-                  Cancel
-                </button>
-                <button type="submit" disabled={isSaving || isImageUploading} className="px-6 h-9 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs tracking-wide shadow-md rounded-lg transition-all transform active:scale-95 disabled:opacity-50">
+                <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-4 h-9 border border-slate-200 text-slate-600 font-bold text-xs rounded-lg hover:bg-slate-50 transition-all">Cancel</button>
+                <button type="submit" disabled={isSaving} className="px-6 h-9 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow-md disabled:opacity-50">
                   {isSaving ? "Saving..." : "Save Changes"}
                 </button>
               </div>

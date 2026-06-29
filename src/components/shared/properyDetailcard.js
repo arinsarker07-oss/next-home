@@ -436,6 +436,7 @@ export default function PropertyDetailsPage({ property }) {
                                 <input type="hidden" name="tenantId" defaultValue={user.id} />
                                 <input type="hidden" name="additionalNotes" value={additionalNotes} />
                                 <input type="hidden" name="propertyName" value={ property?.title || 'Property Booking'} />
+                                <input type="hidden" name="ownerName" value={ property?.ownerName || 'M. R. Rahman'} />
                                 <input type="hidden" name="price" value={ property?.price ? Number(property.price) : 0} />
                             </form>
                         </motion.div>

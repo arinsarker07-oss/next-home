@@ -3,20 +3,35 @@ import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Button } from '@heroui/react';
-import { 
-  HiCheckCircle, 
-  HiOutlineCalendar, 
+import {
+  HiCheckCircle,
+  HiOutlineCalendar,
   HiArrowRight
 } from 'react-icons/hi2';
 
 function SuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const sessionId = searchParams.get('session_id');
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // for get transaction status
+  useEffect(() => {
+    if (sessionId) {
+      fetch('http://localhost:5000/api/transactions/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId })
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log("Transaction status:", data);
+        })
+    }
+  }, [sessionId]);
 
   useEffect(() => {
     if (!sessionId) {
@@ -77,13 +92,13 @@ function SuccessContent() {
   return (
     <div className="min-h-[85vh] flex items-center justify-center bg-slate-50/50 px-4 sm:px-6 lg:px-8 py-12">
       <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200/60 shadow-xl p-8 relative overflow-hidden">
-        
+
         {/* ─── ব্যাকগ্রাউন্ড প্রিমিয়াম গ্লো ইফেক্ট ─── */}
         <div className="absolute -top-24 -left-24 w-48 h-48 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-blue-100/30 rounded-full blur-3xl pointer-events-none" />
 
         <div className="text-center space-y-6 relative z-10">
-          
+
           {/* 🛡️ সাকসেস অ্যানিমেটেড আইকন */}
           <div className="relative flex justify-center">
             <motion.div
@@ -94,9 +109,9 @@ function SuccessContent() {
             >
               <HiCheckCircle className="w-16 h-16 text-emerald-500" />
             </motion.div>
-            
+
             {/* ডবল রিং পালস অ্যানিমেশন */}
-            <motion.div 
+            <motion.div
               animate={{ scale: [1, 1.25, 1], opacity: [0.5, 0, 0.5] }}
               transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
               className="absolute inset-0 m-auto w-24 h-24 border-2 border-emerald-400/20 rounded-full pointer-events-none"
