@@ -1,9 +1,9 @@
-import { serverMutation } from "../core/server";
+import { protectedFetch, serverMutation } from "../core/server";
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
 
 // for add favorite                  
 export const FavoriteProperty = (data) => {
-    return serverMutation("/favouriteproperty", data);
+    return protectedFetch("/favouriteproperty", data);
 }
 
 export const UnfavoriteProperty = (propertyId, tenantId) => {

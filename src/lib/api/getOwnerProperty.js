@@ -1,5 +1,5 @@
-import { serverFetch } from "../core/server"
+import { protectedFetch, serverFetch } from "../core/server"
 
 export const getOwnerProperty=(ownerEmail)=>{
-    return serverFetch(`/dashboard/owner?ownerEmail=${ownerEmail}`)
+    return protectedFetch(`/dashboard/owner?ownerEmail=${ownerEmail}`)
 }

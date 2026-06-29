@@ -1,5 +1,5 @@
-import { serverFetch } from "../core/server"
+import { protectedFetch, serverFetch } from "../core/server"
 
 export const getFavoriteData=(tenantId)=>{
-    return serverFetch(`/favouriteproperty?tenantId=${tenantId}`)
+    return protectedFetch(`/favouriteproperty?tenantId=${tenantId}`)
 }

@@ -1,5 +1,5 @@
-import { serverFetch } from "../core/server"
+import { protectedFetch, serverFetch } from "../core/server"
 
 export const PropertyDetailId = async(id)=>{
-    return serverFetch(`/properties/${id}`)
+    return protectedFetch(`/properties/${id}`)
 }

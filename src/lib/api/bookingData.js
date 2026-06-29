@@ -1,9 +1,9 @@
-import { serverFetch } from "../core/server"
+import { protectedFetch, serverFetch } from "../core/server"
 
 export const getBookingUserData=(tenantId)=>{
-    return serverFetch(`/booking/data?tenantId=${tenantId}`)
+    return protectedFetch(`/booking/data?tenantId=${tenantId}`)
 }
 
 export const getBookingAllData = ()=>{
-    return serverFetch("/all/booking")
+    return protectedFetch("/all/booking")
 }
