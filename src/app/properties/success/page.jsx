@@ -21,7 +21,7 @@ function SuccessContent() {
   // for get transaction status
   useEffect(() => {
     if (sessionId) {
-      fetch('http://localhost:5000/api/transactions/save', {
+      fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId })
@@ -41,7 +41,7 @@ function SuccessContent() {
     }
 
     // 🔥 এখানে আপনার এক্সপ্রেস ব্যাকএন্ড এপিআই কল করা হচ্ছে স্ট্যাটাস আপডেট করার জন্য
-    fetch('http://localhost:5000/api/bookings/update-status', {
+    fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/bookings/update-status`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

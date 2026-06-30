@@ -18,7 +18,7 @@ export default function AllPropertiesPage({ allproperty }) {
     
     try {
       // আপনার ব্যাকএন্ড API এন্ডপয়েন্ট অনুযায়ী URL পরিবর্তন করুন (যেমন: /api/properties/${id})
-      const response = await fetch(`http://localhost:5000/api/properties/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/properties/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

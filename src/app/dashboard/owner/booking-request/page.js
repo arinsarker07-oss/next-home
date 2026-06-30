@@ -27,7 +27,7 @@ const BookingRequestPage = ({ ownerProperty, BookingData }) => {
     const handleStatusUpdate = async (bookingId, newStatus) => {
         try {
             // Replace with your exact backend API URL (e.g., /api/bookings/${bookingId})
-            const response = await fetch(`http://localhost:5000/bookings/${bookingId}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/bookings/${bookingId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

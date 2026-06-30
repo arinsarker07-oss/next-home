@@ -8,7 +8,7 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     // 🔄 এক্সপ্রেস ব্যাকএন্ড থেকে আগের সব ট্রানজেকশন ডেটা লোড করা হচ্ছে
-    fetch('http://localhost:5000/api/transactions')
+    fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/transactions`)
       .then((res) => res.json())
       .then((data) => {
         // যদি ডেটা অ্যারে আকারে আসে তবে সেটে রাখা হচ্ছে
