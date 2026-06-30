@@ -3,7 +3,7 @@ import { protectedFetch, serverFetch } from "../core/server";
 export const getAllProperty = async ({ search = '', type = '', sort = '' }) => {
     try {
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_SERVER_URL}/properties?search=${search}&type=${type}&sort=${sort}`, 
+            `${process.env.NEXT_PUBLIC_BASE_URL}/properties?search=${search}&type=${type}&sort=${sort}`, 
             { cache: 'no-store' } 
         );
         if (!res.ok) return [];

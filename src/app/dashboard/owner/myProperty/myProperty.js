@@ -69,7 +69,7 @@ export default function MyPropertiesPage({ properties: initialProperties }) {
     setIsSaving(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/dashboard/owner/${editingId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/owner/${editingId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
@@ -99,7 +99,7 @@ export default function MyPropertiesPage({ properties: initialProperties }) {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/dashboard/owner/${propertyId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/owner/${propertyId}`, {
         method: "DELETE",
       });
       const data = await response.json();

@@ -12,7 +12,7 @@ export default function AllUsersPage({ allusers }) {
     
     try {
       // ব্যাকএন্ড এক্সপেস সার্ভারে PATCH রিকোয়েস্ট পাঠানো হচ্ছে
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/${id}/role`, { 
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${id}/role`, { 
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
